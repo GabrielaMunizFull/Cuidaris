@@ -1,0 +1,19 @@
+{
+  "name": "@cuidaris/pdf",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./recibo": "./src/recibo.tsx"
+  },
+  "dependencies": {
+    "@react-pdf/renderer": "^4.1.6"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.6",
+    "typescript": "^5.7.2"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1"
+  }
+}

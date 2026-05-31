@@ -1,0 +1,20 @@
+{
+  "name": "@cuidaris/ui",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./button": "./src/button.tsx",
+    "./badge": "./src/badge.tsx",
+    "./input": "./src/input.tsx",
+    "./card": "./src/card.tsx",
+    "./avatar": "./src/avatar.tsx"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.6",
+    "typescript": "^5.7.2"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1"
+  }
+}

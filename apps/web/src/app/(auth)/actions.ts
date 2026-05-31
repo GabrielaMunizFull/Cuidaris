@@ -76,3 +76,45 @@ export async function logoutAction(): Promise<void> {
   await supabase.auth.signOut();
   redirect("/login");
 }
+
+export async function esqueceuSenhaAction(
+  _prevState: ActionResult,
+  formData: FormData
+): Promise<ActionResult & { success?: boolean }> {
+  const email = (formData.get("email") as string)?.trim();
+
+  if (!email || !email.includes("@")) {
+    return { fieldErrors: { email: ["E-mail inválido"] } };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/redefinir-senha`,
+  });
+
+  if (error) return { error: "Erro ao enviar e-mail. Tente novamente." };
+
+  return { success: true };
+}
+
+export async function redefinirSenhaAction(
+  _prevState: ActionResult,
+  formData: FormData
+): Promise<ActionResult> {
+  const password = formData.get("password") as string;
+  const confirmPassword = formData.get("confirmPassword") as string;
+
+  if (!password || password.length < 8) {
+    return { fieldErrors: { password: ["Senha deve ter pelo menos 8 caracteres"] } };
+  }
+  if (password !== confirmPassword) {
+    return { fieldErrors: { confirmPassword: ["As senhas não coincidem"] } };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.updateUser({ password });
+
+  if (error) return { error: "Erro ao redefinir senha. O link pode ter expirado." };
+
+  redirect("/dashboard");
+}

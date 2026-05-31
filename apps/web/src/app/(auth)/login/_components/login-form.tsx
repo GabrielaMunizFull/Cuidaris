@@ -1,13 +1,15 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
 import { loginAction, type ActionResult } from "../../actions";
 
 const initialState: ActionResult = {};
 
 export function LoginForm() {
   const [state, formAction, isPending] = useActionState(loginAction, initialState);
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <form action={formAction} className="space-y-5">
@@ -52,15 +54,25 @@ export function LoginForm() {
             Esqueci a senha
           </Link>
         </div>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          autoComplete="current-password"
-          required
-          placeholder="••••••••••"
-          className="h-11 w-full rounded-[10px] border border-[var(--line)] bg-white px-3.5 text-sm text-[var(--ink)] placeholder:text-[var(--ink-3)] transition-colors focus:outline-none focus:border-[var(--accent)] focus:ring-3 focus:ring-[var(--accent)]/15"
-        />
+        <div className="relative">
+          <input
+            id="password"
+            name="password"
+            type={showPassword ? "text" : "password"}
+            autoComplete="current-password"
+            required
+            placeholder="••••••••••"
+            className="h-11 w-full rounded-[10px] border border-[var(--line)] bg-white px-3.5 pr-11 text-sm text-[var(--ink)] placeholder:text-[var(--ink-3)] transition-colors focus:outline-none focus:border-[var(--accent)] focus:ring-3 focus:ring-[var(--accent)]/15"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((v) => !v)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--ink-3)] hover:text-[var(--ink-2)] transition-colors"
+            aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        </div>
         {state.fieldErrors?.password && (
           <p className="text-xs text-red-600">{state.fieldErrors.password[0]}</p>
         )}

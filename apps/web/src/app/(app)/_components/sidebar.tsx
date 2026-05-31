@@ -19,7 +19,7 @@ interface SidebarProps {
 }
 
 const navGlobal = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard", label: "Visão geral", icon: LayoutDashboard },
 ];
 
 const navProfissional = [

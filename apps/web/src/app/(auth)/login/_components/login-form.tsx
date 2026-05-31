@@ -66,16 +66,6 @@ export function LoginForm() {
         )}
       </div>
 
-      {/* Manter conectada */}
-      <label className="flex items-center gap-2.5 cursor-pointer select-none">
-        <input
-          type="checkbox"
-          name="remember"
-          className="w-4 h-4 rounded accent-[var(--accent)] border-[var(--line)] cursor-pointer"
-        />
-        <span className="text-sm text-[var(--ink-2)]">Manter conectada neste dispositivo</span>
-      </label>
-
       {/* Botão principal */}
       <button
         type="submit"
@@ -120,12 +110,12 @@ export function LoginForm() {
 
       {/* Footer */}
       <p className="text-center text-sm text-[var(--ink-3)]">
-        Não tem acesso?{" "}
+        Não tem conta?{" "}
         <Link
           href="/cadastro"
           className="text-[var(--accent)] hover:text-[var(--accent-hover)] font-medium transition-colors"
         >
-          Falar com o profissional
+          Criar conta grátis
         </Link>
       </p>
     </form>

@@ -7,6 +7,7 @@ import { loginSchema, signupSchema } from "@/lib/validations/auth";
 export type ActionResult = {
   error?: string;
   fieldErrors?: Record<string, string[]>;
+  emailDuplicado?: boolean;
 };
 
 export async function loginAction(
@@ -28,9 +29,12 @@ export async function loginAction(
 
   if (error) {
     if (error.message.includes("Invalid login credentials")) {
-      return { error: "E-mail ou senha incorretos." };
+      return { error: "E-mail ou senha incorretos. Verifique os dados e tente novamente." };
     }
-    return { error: "Erro ao fazer login. Tente novamente." };
+    if (error.message.includes("Email not confirmed")) {
+      return { error: "Confirme seu e-mail antes de entrar. Verifique sua caixa de entrada." };
+    }
+    return { error: "Algo deu errado da nossa parte. Tente novamente em alguns instantes." };
   }
 
   redirect("/dashboard");
@@ -63,12 +67,12 @@ export async function signupAction(
 
   if (error) {
     if (error.message.includes("already registered")) {
-      return { error: "Este e-mail já está cadastrado." };
+      return { emailDuplicado: true };
     }
-    return { error: "Erro ao criar conta. Tente novamente." };
+    return { error: "Não conseguimos criar sua conta agora. Verifique sua conexão e tente novamente." };
   }
 
-  redirect("/dashboard");
+  redirect("/dashboard?novo=1");
 }
 
 export async function logoutAction(): Promise<void> {
@@ -84,7 +88,7 @@ export async function esqueceuSenhaAction(
   const email = (formData.get("email") as string)?.trim();
 
   if (!email || !email.includes("@")) {
-    return { fieldErrors: { email: ["E-mail inválido"] } };
+    return { fieldErrors: { email: ["Digite um e-mail válido, como nome@exemplo.com"] } };
   }
 
   const supabase = await createClient();
@@ -92,7 +96,7 @@ export async function esqueceuSenhaAction(
     redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/redefinir-senha`,
   });
 
-  if (error) return { error: "Erro ao enviar e-mail. Tente novamente." };
+  if (error) return { error: "Não conseguimos enviar o e-mail agora. Verifique o endereço e tente novamente." };
 
   return { success: true };
 }
@@ -105,16 +109,16 @@ export async function redefinirSenhaAction(
   const confirmPassword = formData.get("confirmPassword") as string;
 
   if (!password || password.length < 8) {
-    return { fieldErrors: { password: ["Senha deve ter pelo menos 8 caracteres"] } };
+    return { fieldErrors: { password: ["A senha deve ter pelo menos 8 caracteres"] } };
   }
   if (password !== confirmPassword) {
-    return { fieldErrors: { confirmPassword: ["As senhas não coincidem"] } };
+    return { fieldErrors: { confirmPassword: ["As senhas não coincidem. Verifique e tente novamente."] } };
   }
 
   const supabase = await createClient();
   const { error } = await supabase.auth.updateUser({ password });
 
-  if (error) return { error: "Erro ao redefinir senha. O link pode ter expirado." };
+  if (error) return { error: "Não conseguimos redefinir sua senha. O link pode ter expirado — solicite um novo." };
 
   redirect("/dashboard");
 }

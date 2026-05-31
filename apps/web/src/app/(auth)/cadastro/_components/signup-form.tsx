@@ -14,6 +14,14 @@ export function SignupForm() {
 
   return (
     <form action={formAction} className="space-y-4">
+      {state.emailDuplicado && (
+        <div className="rounded-[10px] bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800" role="alert">
+          Este e-mail já tem uma conta.{" "}
+          <Link href="/login" className="font-semibold underline hover:text-amber-900">
+            Que tal entrar?
+          </Link>
+        </div>
+      )}
       {state.error && (
         <div
           className="rounded-[10px] bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700"
@@ -25,7 +33,7 @@ export function SignupForm() {
 
       <div className="space-y-1.5">
         <label htmlFor="nome" className="block text-sm font-medium text-[var(--ink)]">
-          Seu nome
+          Nome completo
         </label>
         <input
           id="nome"

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -8,8 +9,21 @@ export const metadata: Metadata = {
   title: "Dashboard — Cuidaris",
 };
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ novo?: string }>;
+}) {
+  const { novo } = await searchParams;
   const supabase = await createClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  const { data: assistente } = await supabase
+    .from("assistentes")
+    .select("nome")
+    .eq("id", user?.id ?? "")
+    .single();
+
   const hoje = new Date();
   const inicioHoje = new Date(hoje.setHours(0, 0, 0, 0)).toISOString();
   const fimHoje = new Date(hoje.setHours(23, 59, 59, 999)).toISOString();
@@ -35,6 +49,26 @@ export default async function DashboardPage() {
 
   return (
     <div className="max-w-4xl">
+      {novo === "1" && (
+        <div className="mb-6 rounded-[var(--radius)] bg-[var(--accent-soft)] border border-emerald-200 px-5 py-4 flex items-start gap-4">
+          <span className="text-2xl leading-none mt-0.5">👋</span>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-[var(--ink)]">
+              Bom te ver por aqui, {assistente?.nome?.split(" ")[0] ?? ""}!
+            </p>
+            <p className="text-sm text-[var(--ink-2)] mt-0.5">
+              Vamos deixar tudo pronto em menos de 5 minutos.
+            </p>
+          </div>
+          <Link
+            href="/profissionais/novo"
+            className="shrink-0 h-8 px-3 rounded-[10px] bg-[var(--accent)] text-white text-xs font-semibold hover:bg-[var(--accent-hover)] transition-colors flex items-center"
+          >
+            Adicionar profissional
+          </Link>
+        </div>
+      )}
+
       <div className="mb-6">
         <h1 className="text-xl font-semibold text-[var(--ink)] capitalize">{dataFormatada}</h1>
         <p className="text-sm text-[var(--ink-2)] mt-0.5">Visão geral do seu dia</p>

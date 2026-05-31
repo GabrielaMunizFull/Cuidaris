@@ -3,7 +3,8 @@
 @tailwind utilities;
 
 :root {
-  --accent: #10B981;
+  --green: #10B981;
+  --accent: var(--green);
   --accent-hover: #059669;
   --accent-soft: #ecfdf5;
   --blue: #3B82F6;
@@ -13,9 +14,14 @@
   --ink-3: #94A3B8;
   --bg: #F6F8FA;
   --surface: #FFFFFF;
+  --surface-2: #FBFCFD;
   --line: #E8ECF1;
+  --line-2: #F0F3F6;
   --radius: 14px;
   --font: "Inter", system-ui, sans-serif;
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.08);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.08);
 }
 
 * {

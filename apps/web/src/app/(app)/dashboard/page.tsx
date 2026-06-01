@@ -4,7 +4,6 @@ import { createClient } from "@/lib/supabase/server";
 import { addDays, format, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Calendar, AlertTriangle, DollarSign, Clock, Plus } from "lucide-react";
-import { Avatar } from "@cuidaris/ui";
 import { StatCard } from "./_components/stat-card";
 import { ProfissionalCard } from "./_components/profissional-card";
 
@@ -88,7 +87,7 @@ export default async function DashboardPage() {
   };
 
   return (
-    <div className="max-w-5xl space-y-8">
+    <div className="max-w-6xl space-y-8">
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>

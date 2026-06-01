@@ -25,7 +25,7 @@ export function ProfissionalCard({
   return (
     <Link
       href={`/profissionais/${id}/agenda`}
-      className="bg-[var(--surface)] border border-[var(--line)] rounded-[var(--radius)] p-5 flex flex-col gap-4 hover:border-[var(--accent)]/40 hover:shadow-sm transition-all"
+      className="bg-[var(--surface)] border border-[var(--line)] rounded-[var(--radius)] p-5 flex flex-col gap-4 shadow-[var(--shadow-sm)] hover:border-emerald-300 hover:shadow-[var(--shadow)] transition-all"
     >
       <div className="flex items-center gap-3">
         <Avatar name={nome} src={fotoUrl} size="lg" />

@@ -2,16 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  LayoutDashboard,
-  Users,
-  Calendar,
-  DollarSign,
-  Settings,
-  ChevronDown,
-} from "lucide-react";
+import { LayoutDashboard, Users, Calendar, DollarSign, Settings } from "lucide-react";
 import type { Profissional } from "@cuidaris/db";
 import { Avatar } from "@cuidaris/ui";
+import { CuidarisLogo } from "@/components/cuidaris-logo";
 
 interface SidebarProps {
   profissionais: Pick<Profissional, "id" | "nome" | "especialidade" | "foto_url">[];
@@ -20,6 +14,8 @@ interface SidebarProps {
 
 const navGlobal = [
   { href: "/dashboard", label: "Visão geral", icon: LayoutDashboard },
+  { href: "/agenda", label: "Agenda", icon: Calendar },
+  { href: "/financeiro", label: "Financeiro", icon: DollarSign },
 ];
 
 const navProfissional = [
@@ -35,12 +31,10 @@ export function Sidebar({ profissionais, assistenteNome }: SidebarProps) {
     <aside className="fixed inset-y-0 left-0 w-60 bg-[var(--surface)] border-r border-[var(--line)] flex flex-col z-20">
       {/* Logo */}
       <div className="h-14 flex items-center px-5 border-b border-[var(--line)]">
-        <span className="text-base font-bold text-[var(--ink)] tracking-tight">
-          Cuidaris
-        </span>
+        <CuidarisLogo size="sm" variant="dark" />
       </div>
 
-      {/* Nav global */}
+      {/* Nav */}
       <nav className="flex-1 overflow-y-auto py-3 px-3 flex flex-col gap-0.5">
         {navGlobal.map(({ href, label, icon: Icon }) => {
           const active = pathname === href;

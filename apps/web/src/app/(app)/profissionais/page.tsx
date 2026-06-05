@@ -20,7 +20,7 @@ export default async function ProfissionaisPage() {
   const inativos = profissionais?.filter((p) => !p.ativo) ?? [];
 
   return (
-    <div className="max-w-3xl">
+    <div className="max-w-3xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-semibold text-[var(--ink)]">Profissionais</h1>
@@ -37,13 +37,14 @@ export default async function ProfissionaisPage() {
 
       {ativos.length === 0 ? (
         <div className="bg-[var(--surface)] border border-[var(--line)] rounded-[var(--radius)] p-12 text-center">
-          <p className="text-[var(--ink-2)] mb-4">Nenhum profissional cadastrado ainda.</p>
+          <p className="text-sm font-medium text-[var(--ink)] mb-1">Boas-vindas ao Cuidaris!</p>
+          <p className="text-sm text-[var(--ink-3)] mb-5">Comece adicionando o primeiro profissional que você gerencia.</p>
           <Link
             href="/profissionais/novo"
             className="inline-flex items-center gap-2 h-9 px-4 rounded-[var(--radius)] bg-[var(--accent)] text-white text-sm font-medium hover:bg-[var(--accent-hover)] transition-colors"
           >
             <Plus size={16} />
-            Adicionar primeiro profissional
+            Adicionar profissional
           </Link>
         </div>
       ) : (

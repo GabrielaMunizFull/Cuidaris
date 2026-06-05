@@ -31,7 +31,7 @@ export async function updateSession(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
   const isAuthRoute = pathname.startsWith("/login") || pathname.startsWith("/cadastro");
-  const isAppRoute = pathname.startsWith("/dashboard") || pathname.startsWith("/profissionais") || pathname.startsWith("/pacientes") || pathname.startsWith("/agenda") || pathname.startsWith("/financeiro");
+  const isAppRoute = pathname.startsWith("/dashboard") || pathname.startsWith("/profissionais") || pathname.startsWith("/pacientes") || pathname.startsWith("/agenda") || pathname.startsWith("/financeiro") || pathname.startsWith("/planos") || pathname.startsWith("/configuracoes");
 
   if (!user && isAppRoute) {
     const url = request.nextUrl.clone();

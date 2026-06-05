@@ -10,7 +10,9 @@ interface PacienteFormProps {
     email?: string | null;
     telefone?: string | null;
     data_nascimento?: string | null;
+    convenio_id?: string | null;
   };
+  convenios?: { id: string; nome: string }[];
   submitLabel?: string;
 }
 
@@ -19,6 +21,7 @@ const initialState: ActionResult = {};
 export function PacienteForm({
   action,
   defaultValues = {},
+  convenios = [],
   submitLabel = "Salvar paciente",
 }: PacienteFormProps) {
   const [state, formAction, isPending] = useActionState(action, initialState);
@@ -51,9 +54,7 @@ export function PacienteForm({
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="telefone" className="text-sm font-medium text-[var(--ink)]">
-            Telefone
-          </label>
+          <label htmlFor="telefone" className="text-sm font-medium text-[var(--ink)]">Telefone com DDD</label>
           <input
             id="telefone"
             name="telefone"
@@ -65,9 +66,7 @@ export function PacienteForm({
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="data_nascimento" className="text-sm font-medium text-[var(--ink)]">
-            Data de nascimento
-          </label>
+          <label htmlFor="data_nascimento" className="text-sm font-medium text-[var(--ink)]">Data de nascimento</label>
           <input
             id="data_nascimento"
             name="data_nascimento"
@@ -78,9 +77,7 @@ export function PacienteForm({
         </div>
 
         <div className="col-span-2 flex flex-col gap-1.5">
-          <label htmlFor="email" className="text-sm font-medium text-[var(--ink)]">
-            E-mail
-          </label>
+          <label htmlFor="email" className="text-sm font-medium text-[var(--ink)]">E-mail</label>
           <input
             id="email"
             name="email"
@@ -92,6 +89,21 @@ export function PacienteForm({
           {state.fieldErrors?.email && (
             <p className="text-xs text-red-600">{state.fieldErrors.email[0]}</p>
           )}
+        </div>
+
+        <div className="col-span-2 flex flex-col gap-1.5">
+          <label htmlFor="convenio_id" className="text-sm font-medium text-[var(--ink)]">Convênio</label>
+          <select
+            id="convenio_id"
+            name="convenio_id"
+            defaultValue={defaultValues.convenio_id ?? ""}
+            className="h-10 w-full rounded-[10px] border border-[var(--line)] bg-white px-3 text-sm text-[var(--ink)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent"
+          >
+            <option value="">Particular</option>
+            {convenios.map((c) => (
+              <option key={c.id} value={c.id}>{c.nome}</option>
+            ))}
+          </select>
         </div>
       </div>
 

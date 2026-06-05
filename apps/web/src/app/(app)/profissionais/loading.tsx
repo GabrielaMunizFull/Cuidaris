@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/skeleton";
 
 export default function ProfissionaisLoading() {
   return (
-    <div className="max-w-3xl">
+    <div className="max-w-3xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div className="space-y-1.5">
           <Skeleton className="h-6 w-32" />

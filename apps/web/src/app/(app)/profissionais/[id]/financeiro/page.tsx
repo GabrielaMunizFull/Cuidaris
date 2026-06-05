@@ -64,7 +64,7 @@ export default async function FinanceiroPage({
   const mesLabel = format(mesAtual, "MMMM yyyy", { locale: ptBR });
 
   return (
-    <div className="max-w-3xl">
+    <div className="max-w-3xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-semibold text-[var(--ink)] capitalize">
@@ -83,13 +83,13 @@ export default async function FinanceiroPage({
 
       {/* Resumo do mês */}
       <div className="grid grid-cols-2 gap-4 mb-6">
-        <div className="bg-[var(--surface)] border border-[var(--line)] rounded-[var(--radius)] p-5">
+        <div className="bg-[var(--surface)] border border-[var(--line)] rounded-[var(--radius)] p-5 shadow-sm">
           <p className="text-xs font-medium text-[var(--ink-3)] uppercase tracking-wide">Recebido</p>
           <p className="text-2xl font-semibold text-emerald-600 mt-1 tabular-nums">
             R$ {totalRecebido.toFixed(2).replace(".", ",")}
           </p>
         </div>
-        <div className="bg-[var(--surface)] border border-[var(--line)] rounded-[var(--radius)] p-5">
+        <div className="bg-[var(--surface)] border border-[var(--line)] rounded-[var(--radius)] p-5 shadow-sm">
           <p className="text-xs font-medium text-[var(--ink-3)] uppercase tracking-wide">A receber</p>
           <p className="text-2xl font-semibold text-amber-600 mt-1 tabular-nums">
             R$ {totalPendente.toFixed(2).replace(".", ",")}
@@ -100,7 +100,8 @@ export default async function FinanceiroPage({
       {/* Lista de lançamentos */}
       {!lancamentos || lancamentos.length === 0 ? (
         <div className="bg-[var(--surface)] border border-[var(--line)] rounded-[var(--radius)] p-12 text-center">
-          <p className="text-[var(--ink-2)] mb-4">Nenhum lançamento neste mês.</p>
+          <p className="text-sm font-medium text-[var(--ink)] mb-1">Nenhum lançamento este mês</p>
+          <p className="text-sm text-[var(--ink-3)] mb-5">Os lançamentos aparecem aqui quando você confirmar sessões como pagas.</p>
           <Link
             href={`/profissionais/${id}/financeiro/novo`}
             className="inline-flex items-center gap-2 h-9 px-4 rounded-[var(--radius)] bg-[var(--accent)] text-white text-sm font-medium hover:bg-[var(--accent-hover)] transition-colors"

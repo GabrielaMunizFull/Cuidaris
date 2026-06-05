@@ -35,7 +35,7 @@ export default async function NovoLancamentoPage({
   const action = criarLancamentoAction.bind(null, id);
 
   return (
-    <div className="max-w-xl">
+    <div className="max-w-xl mx-auto">
       <div className="mb-6">
         <h1 className="text-xl font-semibold text-[var(--ink)]">Novo lançamento</h1>
         <p className="text-sm text-[var(--ink-2)] mt-0.5">{prof.nome}</p>

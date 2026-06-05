@@ -50,8 +50,10 @@ export async function criarProfissionalAction(
   const limite = LIMITE_PROFISSIONAIS[plano];
 
   if ((count ?? 0) >= limite) {
+    const nomes: Record<string, string> = { essencial: "Essencial", profissional: "Profissional", clinica: "Clínica" };
+    const limiteTexto = limite === Infinity ? "ilimitados" : String(limite);
     return {
-      error: `Seu plano ${plano} permite até ${limite === Infinity ? "ilimitados" : limite} profissional(is). Faça upgrade para adicionar mais.`,
+      error: `Você atingiu o limite de ${limiteTexto} profissional(is) do plano ${nomes[plano] ?? plano}. Faça upgrade para adicionar mais. Acesse /planos para ver as opções.`,
     };
   }
 

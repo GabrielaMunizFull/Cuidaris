@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { pacienteSchema } from "@/lib/validations/paciente";
@@ -45,6 +45,7 @@ export async function criarPacienteAction(
   if (error) return { error: "Erro ao salvar paciente. Tente novamente." };
 
   revalidatePath(`/profissionais/${profissionalId}/pacientes`);
+  revalidateTag(`profissional-${profissionalId}`);
   redirect(`/profissionais/${profissionalId}/pacientes`);
 }
 
@@ -83,7 +84,7 @@ export async function editarPacienteAction(
   if (error) return { error: "Erro ao atualizar paciente." };
 
   revalidatePath(`/profissionais/${profissionalId}/pacientes`);
-  redirect(`/profissionais/${profissionalId}/pacientes`);
+  redirect(`/profissionais/${profissionalId}/pacientes/${pacienteId}`);
 }
 
 export async function desativarPacienteAction(
@@ -100,5 +101,6 @@ export async function desativarPacienteAction(
   if (error) return { error: "Erro ao desativar paciente." };
 
   revalidatePath(`/profissionais/${profissionalId}/pacientes`);
+  revalidateTag(`profissional-${profissionalId}`);
   redirect(`/profissionais/${profissionalId}/pacientes`);
 }

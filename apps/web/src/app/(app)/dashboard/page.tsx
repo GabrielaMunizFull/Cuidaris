@@ -87,7 +87,7 @@ export default async function DashboardPage() {
   };
 
   return (
-    <div className="max-w-6xl space-y-8">
+    <div className="max-w-6xl space-y-8 mx-auto">
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>

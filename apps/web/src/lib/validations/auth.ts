@@ -10,7 +10,8 @@ export const loginSchema = z.object({
     .min(1, "Preencha a senha para continuar"),
 });
 
-export const signupSchema = z.object({
+// Campos base — sem .refine() para poder usar com discriminatedUnion
+const signupBaseFields = z.object({
   nome: z
     .string()
     .min(2, "Preencha seu nome completo")
@@ -23,18 +24,21 @@ export const signupSchema = z.object({
     .string()
     .min(8, "A senha deve ter pelo menos 8 caracteres"),
   confirmPassword: z.string().min(1, "Confirme a senha para continuar"),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "As senhas não coincidem. Verifique e tente novamente.",
-  path: ["confirmPassword"],
 });
 
-const baseSignupSchema = signupSchema;
+// Schema original mantido para compatibilidade com o fluxo sem tipo_conta
+export const signupSchema = signupBaseFields.refine(
+  (d) => d.password === d.confirmPassword,
+  { message: "As senhas não coincidem. Verifique e tente novamente.", path: ["confirmPassword"] }
+);
 
-export const signupAssistenteSchema = baseSignupSchema.extend({
+// discriminatedUnion exige ZodObject puro (sem .refine())
+// A validação de senha iguais fica por conta da action
+export const signupAssistenteSchema = signupBaseFields.extend({
   tipo_conta: z.literal("assistente"),
 });
 
-export const signupAutonomoSchema = baseSignupSchema.extend({
+export const signupAutonomoSchema = signupBaseFields.extend({
   tipo_conta: z.literal("autonomo"),
   especialidade: z.string().min(2, "Informe sua especialidade").max(80),
   registro: z.string().max(30).optional(),

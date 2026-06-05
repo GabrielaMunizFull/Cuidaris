@@ -64,6 +64,10 @@ export async function signupAction(
     return { fieldErrors: parsed.error.flatten().fieldErrors };
   }
 
+  if (parsed.data.password !== parsed.data.confirmPassword) {
+    return { fieldErrors: { confirmPassword: ["As senhas não coincidem. Verifique e tente novamente."] } };
+  }
+
   const supabase = await createClient();
 
   const metaData: Record<string, string> = {

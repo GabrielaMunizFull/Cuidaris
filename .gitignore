@@ -24,3 +24,6 @@ Thumbs.db
 # Supabase
 supabase/.branches
 supabase/.temp
+
+# Claude Code
+.claude/scheduled_tasks.lock

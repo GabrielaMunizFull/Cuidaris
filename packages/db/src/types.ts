@@ -1,4 +1,5 @@
-export type PlanoAssinatura = "essencial" | "profissional" | "clinica";
+export type PlanoAssinatura = "solo" | "essencial" | "profissional" | "clinica";
+export type TipoConta = "assistente" | "autonomo";
 export type StatusAssinatura = "trial" | "ativo" | "cancelado" | "inadimplente";
 export type StatusConsulta = "confirmado" | "pendente" | "cancelado" | "remarcado";
 export type StatusLancamento = "pago" | "pendente" | "atrasado";
@@ -8,6 +9,7 @@ export interface Assistente {
   id: string;
   nome: string;
   email: string;
+  tipo_conta: TipoConta;
   trial_termina_em: string;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
@@ -82,6 +84,7 @@ export interface Convenio {
 }
 
 export const LIMITE_PROFISSIONAIS: Record<PlanoAssinatura, number> = {
+  solo: 1,
   essencial: 1,
   profissional: 5,
   clinica: Infinity,

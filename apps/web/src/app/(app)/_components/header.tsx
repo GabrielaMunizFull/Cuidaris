@@ -6,10 +6,12 @@ import { Bell, Search, Plus, ChevronDown } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { logoutAction } from "@/app/(auth)/actions";
 import { Avatar } from "@cuidaris/ui";
+import type { TipoConta } from "@cuidaris/db";
 
 interface HeaderProps {
   assistenteNome: string;
   profissionais: { id: string; nome: string }[];
+  tipoConta: TipoConta;
 }
 
 const breadcrumbMap: Record<string, string> = {
@@ -26,13 +28,19 @@ const breadcrumbMap: Record<string, string> = {
   configuracoes: "Configurações",
 };
 
-export function Header({ assistenteNome, profissionais }: HeaderProps) {
+// Para autônomo, rotas dentro de /profissionais/[id]/ recebem labels personalizados
+const breadcrumbAutonomo: Record<string, string> = {
+  ...breadcrumbMap,
+  pacientes: "Meus Pacientes",
+  agenda: "Minha Agenda",
+};
+
+export function Header({ assistenteNome, profissionais, tipoConta }: HeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Fecha dropdown ao clicar fora
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -43,14 +51,19 @@ export function Header({ assistenteNome, profissionais }: HeaderProps) {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  // Extrai o ID do profissional da rota atual para o CTA contextual
   const profissionalIdMatch = pathname.match(/^\/profissionais\/([^/]+)/);
   const profissionalId = profissionalIdMatch?.[1];
 
-  const breadcrumb = pathname
-    .split("/")
-    .filter(Boolean)
-    .map((segment) => breadcrumbMap[segment] ?? segment);
+  const isAutonomo = tipoConta === "autonomo";
+  const map = isAutonomo && profissionalId ? breadcrumbAutonomo : breadcrumbMap;
+
+  // Para autônomo dentro de /profissionais/[id]/..., omitir o segmento "profissionais" e o UUID do breadcrumb
+  const segments = pathname.split("/").filter(Boolean);
+  const breadcrumb = isAutonomo && profissionalId
+    ? segments
+        .filter((seg) => seg !== "profissionais" && seg !== profissionalId)
+        .map((seg) => map[seg] ?? seg)
+    : segments.map((seg) => map[seg] ?? seg);
 
   return (
     <header className="h-14 fixed top-0 left-0 lg:left-60 right-0 bg-[var(--surface)] border-b border-[var(--line)] flex items-center gap-4 px-6 z-10">
@@ -82,7 +95,6 @@ export function Header({ assistenteNome, profissionais }: HeaderProps) {
 
       {/* Ações à direita */}
       <div className="shrink-0 flex items-center gap-2">
-        {/* Sino de notificação */}
         <button
           type="button"
           className="relative w-8 h-8 flex items-center justify-center rounded-[10px] text-[var(--ink-3)] hover:bg-[var(--bg)] hover:text-[var(--ink-2)] transition-colors"
@@ -92,8 +104,27 @@ export function Header({ assistenteNome, profissionais }: HeaderProps) {
         </button>
 
         {/* CTA contextual */}
-        {profissionalId && profissionalId !== "novo" ? (
-          // Dentro de um profissional: abre o modal via URL param
+        {isAutonomo && profissionais[0] ? (
+          // Autônomo: vai sempre direto para o próprio profissional
+          profissionalId && profissionalId !== "novo" ? (
+            <button
+              type="button"
+              onClick={() => router.push(`${pathname}?novo=1`)}
+              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[10px] bg-[var(--accent)] text-white text-xs font-semibold hover:bg-[var(--accent-hover)] transition-colors"
+            >
+              <Plus size={13} />
+              Novo paciente
+            </button>
+          ) : (
+            <Link
+              href={`/profissionais/${profissionais[0].id}/pacientes/novo`}
+              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[10px] bg-[var(--accent)] text-white text-xs font-semibold hover:bg-[var(--accent-hover)] transition-colors"
+            >
+              <Plus size={13} />
+              Novo paciente
+            </Link>
+          )
+        ) : profissionalId && profissionalId !== "novo" ? (
           <button
             type="button"
             onClick={() => router.push(`${pathname}?novo=1`)}
@@ -103,7 +134,6 @@ export function Header({ assistenteNome, profissionais }: HeaderProps) {
             Novo paciente
           </button>
         ) : profissionais.length === 0 ? (
-          // Sem profissionais: cadastra profissional primeiro
           <Link
             href="/profissionais/novo"
             className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[10px] bg-[var(--accent)] text-white text-xs font-semibold hover:bg-[var(--accent-hover)] transition-colors"
@@ -112,7 +142,6 @@ export function Header({ assistenteNome, profissionais }: HeaderProps) {
             Novo profissional
           </Link>
         ) : profissionais.length === 1 ? (
-          // Um profissional: vai direto
           <Link
             href={`/profissionais/${profissionais[0]!.id}/pacientes/novo`}
             className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[10px] bg-[var(--accent)] text-white text-xs font-semibold hover:bg-[var(--accent-hover)] transition-colors"
@@ -121,7 +150,6 @@ export function Header({ assistenteNome, profissionais }: HeaderProps) {
             Novo paciente
           </Link>
         ) : (
-          // Vários profissionais: dropdown para escolher
           <div ref={dropdownRef} className="relative">
             <button
               type="button"
@@ -152,7 +180,6 @@ export function Header({ assistenteNome, profissionais }: HeaderProps) {
           </div>
         )}
 
-        {/* Avatar + sair */}
         <form action={logoutAction}>
           <button
             type="submit"

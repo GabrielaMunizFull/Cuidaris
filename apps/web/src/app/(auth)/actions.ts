@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { loginSchema, signupSchema } from "@/lib/validations/auth";
+import { loginSchema, signupComTipoSchema } from "@/lib/validations/auth";
 
 export type ActionResult = {
   error?: string;
@@ -44,25 +44,43 @@ export async function signupAction(
   _prevState: ActionResult,
   formData: FormData
 ): Promise<ActionResult> {
+  const tipoConta = formData.get("tipo_conta") as string;
+
   const raw = {
+    tipo_conta: tipoConta || "assistente",
     nome: formData.get("nome") as string,
     email: formData.get("email") as string,
     password: formData.get("password") as string,
     confirmPassword: formData.get("confirmPassword") as string,
+    ...(tipoConta === "autonomo" && {
+      especialidade: formData.get("especialidade") as string,
+      registro: (formData.get("registro") as string) || undefined,
+      telefone: (formData.get("telefone") as string) || undefined,
+    }),
   };
 
-  const parsed = signupSchema.safeParse(raw);
+  const parsed = signupComTipoSchema.safeParse(raw);
   if (!parsed.success) {
     return { fieldErrors: parsed.error.flatten().fieldErrors };
   }
 
   const supabase = await createClient();
+
+  const metaData: Record<string, string> = {
+    nome: parsed.data.nome,
+    tipo_conta: parsed.data.tipo_conta,
+  };
+
+  if (parsed.data.tipo_conta === "autonomo") {
+    metaData.especialidade = parsed.data.especialidade;
+    if (parsed.data.registro) metaData.registro = parsed.data.registro;
+    if (parsed.data.telefone) metaData.telefone = parsed.data.telefone;
+  }
+
   const { error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
-    options: {
-      data: { nome: parsed.data.nome },
-    },
+    options: { data: metaData },
   });
 
   if (error) {

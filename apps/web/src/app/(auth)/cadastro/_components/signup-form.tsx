@@ -2,8 +2,9 @@
 
 import { useActionState, useState } from "react";
 import Link from "next/link";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Briefcase, Users } from "lucide-react";
 import { signupAction, type ActionResult } from "../../actions";
+import type { TipoConta } from "@cuidaris/db";
 
 const initialState: ActionResult = {};
 
@@ -23,13 +24,84 @@ function PasswordToggle({ show, onToggle }: { show: boolean; onToggle: () => voi
   );
 }
 
+type TipoCard = {
+  tipo: TipoConta;
+  icone: React.ElementType;
+  titulo: string;
+  descricao: string;
+};
+
+const tipoCards: TipoCard[] = [
+  {
+    tipo: "assistente",
+    icone: Users,
+    titulo: "Sou assistente virtual",
+    descricao: "Gerencio agenda e financeiro de outros profissionais de saúde",
+  },
+  {
+    tipo: "autonomo",
+    icone: Briefcase,
+    titulo: "Sou profissional autônomo",
+    descricao: "Gerencio minha própria agenda, pacientes e financeiro",
+  },
+];
+
 export function SignupForm() {
   const [state, formAction, isPending] = useActionState(signupAction, initialState);
+  const [step, setStep] = useState<1 | 2>(1);
+  const [tipoConta, setTipoConta] = useState<TipoConta>("assistente");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
+  if (step === 1) {
+    return (
+      <div className="space-y-4">
+        <div className="space-y-1.5 text-center">
+          <h2 className="text-lg font-semibold text-[var(--ink)]">Como você vai usar o Cuidaris?</h2>
+          <p className="text-sm text-[var(--ink-2)]">Escolha o perfil que melhor descreve você</p>
+        </div>
+
+        <div className="space-y-3 pt-1">
+          {tipoCards.map(({ tipo, icone: Icone, titulo, descricao }) => (
+            <button
+              key={tipo}
+              type="button"
+              onClick={() => { setTipoConta(tipo); setStep(2); }}
+              className="w-full flex items-start gap-4 p-4 rounded-[var(--radius)] border-2 border-[var(--line)] bg-white hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] transition-all text-left group"
+            >
+              <div className="mt-0.5 flex-shrink-0 h-9 w-9 rounded-[10px] bg-[var(--accent-soft)] group-hover:bg-white flex items-center justify-center transition-colors">
+                <Icone size={18} className="text-[var(--accent)]" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-[var(--ink)]">{titulo}</p>
+                <p className="text-xs text-[var(--ink-2)] mt-0.5 leading-relaxed">{descricao}</p>
+              </div>
+            </button>
+          ))}
+        </div>
+
+        <p className="text-center text-sm text-[var(--ink-2)] pt-1">
+          Já tem conta?{" "}
+          <Link href="/login" className="text-[var(--accent)] hover:text-[var(--accent-hover)] font-medium transition-colors">
+            Entrar
+          </Link>
+        </p>
+      </div>
+    );
+  }
+
   return (
     <form action={formAction} className="space-y-4">
+      <input type="hidden" name="tipo_conta" value={tipoConta} />
+
+      <button
+        type="button"
+        onClick={() => setStep(1)}
+        className="flex items-center gap-1.5 text-xs text-[var(--ink-3)] hover:text-[var(--ink-2)] transition-colors -mt-1 mb-1"
+      >
+        ← Voltar
+      </button>
+
       {state.emailDuplicado && (
         <div className="rounded-[10px] bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800" role="alert">
           Este e-mail já tem uma conta.{" "}
@@ -79,6 +151,54 @@ export function SignupForm() {
           <p className="text-xs text-red-600">{state.fieldErrors.email[0]}</p>
         )}
       </div>
+
+      {tipoConta === "autonomo" && (
+        <>
+          <div className="space-y-1.5">
+            <label htmlFor="especialidade" className="block text-sm font-medium text-[var(--ink)]">
+              Especialidade <span className="text-red-500">*</span>
+            </label>
+            <input
+              id="especialidade"
+              name="especialidade"
+              type="text"
+              required
+              placeholder="Psicóloga, Nutricionista, Fisioterapeuta..."
+              className={inputClass}
+            />
+            {state.fieldErrors?.especialidade && (
+              <p className="text-xs text-red-600">{state.fieldErrors.especialidade[0]}</p>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <label htmlFor="registro" className="block text-sm font-medium text-[var(--ink)]">
+                Registro profissional
+              </label>
+              <input
+                id="registro"
+                name="registro"
+                type="text"
+                placeholder="CRP 06/12345"
+                className={inputClass}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label htmlFor="telefone" className="block text-sm font-medium text-[var(--ink)]">
+                Telefone
+              </label>
+              <input
+                id="telefone"
+                name="telefone"
+                type="tel"
+                placeholder="(11) 99999-9999"
+                className={inputClass}
+              />
+            </div>
+          </div>
+        </>
+      )}
 
       <div className="space-y-1.5">
         <label htmlFor="password" className="block text-sm font-medium text-[var(--ink)]">

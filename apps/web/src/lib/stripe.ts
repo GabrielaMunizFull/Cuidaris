@@ -12,6 +12,20 @@ export const supabaseAdmin = createClient(
 );
 
 export const PLANOS = {
+  solo: {
+    nome: "Solo",
+    preco: "R$ 49/mês",
+    precoNum: 49,
+    descricao: "Para profissionais autônomos que gerenciam a própria agenda",
+    limite: "1 profissional (você)",
+    priceId: process.env.STRIPE_PRICE_SOLO!,
+    features: [
+      "Você como profissional",
+      "Pacientes ilimitados",
+      "Agenda semanal",
+      "Financeiro + recibos PDF",
+    ],
+  },
   essencial: {
     nome: "Essencial",
     preco: "R$ 79/mês",

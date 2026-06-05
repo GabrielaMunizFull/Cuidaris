@@ -33,12 +33,19 @@ export async function criarProfissionalAction(
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Não autorizado." };
 
-  // Verificar limite do plano antes de inserir
+  // Verificar tipo de conta e limite do plano antes de inserir
   const { data: assistente } = await supabase
     .from("assistentes")
-    .select("plano, status_assinatura")
+    .select("plano, status_assinatura, tipo_conta")
     .eq("id", user.id)
     .single();
+
+  // Conta autônoma não pode adicionar profissionais manualmente
+  if (assistente?.tipo_conta === "autonomo") {
+    return {
+      error: "Conta autônoma não suporta cadastro de profissionais adicionais. Faça upgrade para o plano Profissional para gerenciar outros profissionais.",
+    };
+  }
 
   const { count } = await supabase
     .from("profissionais")

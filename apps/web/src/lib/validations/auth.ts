@@ -28,5 +28,24 @@ export const signupSchema = z.object({
   path: ["confirmPassword"],
 });
 
+const baseSignupSchema = signupSchema;
+
+export const signupAssistenteSchema = baseSignupSchema.extend({
+  tipo_conta: z.literal("assistente"),
+});
+
+export const signupAutonomoSchema = baseSignupSchema.extend({
+  tipo_conta: z.literal("autonomo"),
+  especialidade: z.string().min(2, "Informe sua especialidade").max(80),
+  registro: z.string().max(30).optional(),
+  telefone: z.string().max(20).optional(),
+});
+
+export const signupComTipoSchema = z.discriminatedUnion("tipo_conta", [
+  signupAssistenteSchema,
+  signupAutonomoSchema,
+]);
+
 export type LoginInput = z.infer<typeof loginSchema>;
 export type SignupInput = z.infer<typeof signupSchema>;
+export type SignupComTipoInput = z.infer<typeof signupComTipoSchema>;

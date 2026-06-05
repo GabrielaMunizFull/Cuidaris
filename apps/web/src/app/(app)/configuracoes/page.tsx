@@ -10,6 +10,7 @@ import { PortalButtonClient } from "./_components/portal-button";
 export const metadata: Metadata = { title: "Configurações — Cuidaris" };
 
 const planoNome: Record<string, string> = {
+  solo: "Solo",
   essencial: "Essencial",
   profissional: "Profissional",
   clinica: "Clínica",
@@ -27,7 +28,7 @@ export default async function ConfiguracoesPage() {
   const { data: { user } } = await supabase.auth.getUser();
   const { data: assistente } = await supabase
     .from("assistentes")
-    .select("nome, email, plano, status_assinatura, trial_termina_em, stripe_customer_id")
+    .select("nome, email, plano, status_assinatura, trial_termina_em, stripe_customer_id, tipo_conta")
     .single();
 
   const trialTermina = assistente?.trial_termina_em
@@ -49,6 +50,9 @@ export default async function ConfiguracoesPage() {
           <div>
             <p className="text-sm font-medium text-[var(--ink)]">{assistente?.nome ?? "—"}</p>
             <p className="text-sm text-[var(--ink-3)]">{assistente?.email ?? user?.email}</p>
+            <p className="text-xs text-[var(--ink-3)] mt-0.5">
+              {assistente?.tipo_conta === "autonomo" ? "Profissional Autônomo" : "Assistente Virtual"}
+            </p>
           </div>
         </div>
       </div>

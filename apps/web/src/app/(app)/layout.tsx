@@ -21,7 +21,7 @@ export default async function AppLayout({
       const [{ data: assistente }, { data: profissionais }] = await Promise.all([
         supabase
           .from("assistentes")
-          .select("nome, status_assinatura, trial_termina_em, plano")
+          .select("nome, status_assinatura, trial_termina_em, plano, tipo_conta")
           .eq("id", userId)
           .single(),
         supabase
@@ -56,11 +56,13 @@ export default async function AppLayout({
       <Sidebar
         profissionais={profissionais ?? []}
         assistenteNome={assistente?.nome ?? user.email ?? ""}
+        tipoConta={assistente?.tipo_conta ?? "assistente"}
       />
       <div className="lg:ml-60 flex flex-col min-h-screen">
         <Header
           assistenteNome={assistente?.nome ?? user.email ?? ""}
           profissionais={profissionais ?? []}
+          tipoConta={assistente?.tipo_conta ?? "assistente"}
         />
         {mostrarBanner && (
           <div className="pt-14">

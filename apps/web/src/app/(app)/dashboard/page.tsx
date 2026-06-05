@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { addDays, format, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Calendar, AlertTriangle, DollarSign, Clock, Plus } from "lucide-react";
 import { StatCard } from "./_components/stat-card";
 import { ProfissionalCard } from "./_components/profissional-card";
+import { DashboardAutonomo } from "./_components/dashboard-autonomo";
 
 export const metadata: Metadata = {
   title: "Dashboard — Cuidaris",
@@ -19,15 +21,49 @@ function saudacao(nome: string): string {
   return `Boa noite, ${primeiroNome}! 👋`;
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ novo?: string }>;
+}) {
   const supabase = await createClient();
 
   const { data: { user } } = await supabase.auth.getUser();
   const { data: assistente } = await supabase
     .from("assistentes")
-    .select("nome")
+    .select("nome, tipo_conta")
     .eq("id", user?.id ?? "")
     .single();
+
+  // Autônomo no primeiro acesso vai direto para a agenda
+  if (assistente?.tipo_conta === "autonomo") {
+    const params = await searchParams;
+    if (params?.novo === "1") {
+      const { data: profissionais } = await supabase
+        .from("profissionais")
+        .select("id")
+        .eq("ativo", true)
+        .limit(1);
+      if (profissionais?.[0]) {
+        redirect(`/profissionais/${profissionais[0].id}/agenda`);
+      }
+    }
+
+    const { data: profissionais } = await supabase
+      .from("profissionais")
+      .select("id")
+      .eq("ativo", true)
+      .limit(1);
+
+    if (profissionais?.[0]) {
+      return (
+        <DashboardAutonomo
+          profissionalId={profissionais[0].id}
+          saudacao={saudacao(assistente?.nome ?? "por aqui")}
+        />
+      );
+    }
+  }
 
   const agora = new Date();
   const inicioHoje = startOfDay(agora).toISOString();

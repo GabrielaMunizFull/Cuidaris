@@ -6,6 +6,7 @@ import type Stripe from "stripe";
 export const runtime = "nodejs";
 
 const priceToPlano: Record<string, string> = {
+  [process.env.STRIPE_PRICE_SOLO ?? ""]: "solo",
   [process.env.STRIPE_PRICE_ESSENCIAL ?? ""]: "essencial",
   [process.env.STRIPE_PRICE_PROFISSIONAL ?? ""]: "profissional",
   [process.env.STRIPE_PRICE_CLINICA ?? ""]: "clinica",

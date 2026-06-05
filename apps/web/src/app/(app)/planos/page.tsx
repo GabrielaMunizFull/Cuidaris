@@ -18,12 +18,19 @@ export default async function PlanosPage({
 
   const { data: assistente } = await supabase
     .from("assistentes")
-    .select("plano, status_assinatura, trial_termina_em, stripe_customer_id")
+    .select("plano, status_assinatura, trial_termina_em, stripe_customer_id, tipo_conta")
     .single();
 
   const planoAtual = assistente?.plano ?? null;
   const status = assistente?.status_assinatura ?? "trial";
   const temAssinatura = !!assistente?.stripe_customer_id;
+  const isAutonomo = assistente?.tipo_conta === "autonomo";
+
+  // Autônomo vê: Solo + Profissional + Clínica (sem Essencial)
+  // Assistente vê: Essencial + Profissional + Clínica (sem Solo)
+  const planosVisiveis = isAutonomo
+    ? (["solo", "profissional", "clinica"] as const)
+    : (["essencial", "profissional", "clinica"] as const);
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -34,7 +41,9 @@ export default async function PlanosPage({
       )}
 
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-[var(--ink)] tracking-tight">Escolha o tamanho da sua operação.</h1>
+        <h1 className="text-2xl font-bold text-[var(--ink)] tracking-tight">
+          {isAutonomo ? "Escolha o plano certo para você." : "Escolha o tamanho da sua operação."}
+        </h1>
         <p className="text-sm text-[var(--ink-2)] mt-1">
           {status === "trial"
             ? "Sem fidelidade. 14 dias grátis. Cancele quando quiser."
@@ -45,8 +54,11 @@ export default async function PlanosPage({
       </div>
 
       <div className="grid grid-cols-3 gap-4">
-        {(Object.entries(PLANOS) as [keyof typeof PLANOS, typeof PLANOS[keyof typeof PLANOS]][]).map(
-          ([key, plano]) => {
+        {planosVisiveis.map((key) => {
+          const plano = PLANOS[key];
+          return { key, plano };
+        }).map(
+          ({ key, plano }) => {
             const ativo = planoAtual === key;
             const destaque = "destaque" in plano && plano.destaque;
 

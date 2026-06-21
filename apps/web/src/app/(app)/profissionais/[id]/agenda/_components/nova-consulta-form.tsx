@@ -7,11 +7,19 @@ interface NovaConsultaFormProps {
   action: (prevState: ActionResult, formData: FormData) => Promise<ActionResult>;
   pacientes: { id: string; nome: string }[];
   profissionalId: string;
+  defaultValues?: {
+    paciente_id?: string;
+    data_hora?: string;
+    duracao_minutos?: number;
+    status?: string;
+    observacoes?: string | null;
+  };
+  submitLabel?: string;
 }
 
 const initialState: ActionResult = {};
 
-export function NovaConsultaForm({ action, pacientes }: NovaConsultaFormProps) {
+export function NovaConsultaForm({ action, pacientes, defaultValues, submitLabel = "Agendar consulta" }: NovaConsultaFormProps) {
   const [state, formAction, isPending] = useActionState(action, initialState);
 
   return (
@@ -30,6 +38,7 @@ export function NovaConsultaForm({ action, pacientes }: NovaConsultaFormProps) {
           id="paciente_id"
           name="paciente_id"
           required
+          defaultValue={defaultValues?.paciente_id ?? ""}
           className="h-10 w-full rounded-[10px] border border-[var(--line)] bg-white px-3 text-sm text-[var(--ink)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent"
         >
           <option value="">Selecione um paciente</option>
@@ -55,6 +64,7 @@ export function NovaConsultaForm({ action, pacientes }: NovaConsultaFormProps) {
             name="data_hora"
             type="datetime-local"
             required
+            defaultValue={defaultValues?.data_hora}
             className="h-10 w-full rounded-[10px] border border-[var(--line)] bg-white px-3 text-sm text-[var(--ink)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent"
           />
           {state.fieldErrors?.data_hora && (
@@ -69,7 +79,7 @@ export function NovaConsultaForm({ action, pacientes }: NovaConsultaFormProps) {
           <select
             id="duracao_minutos"
             name="duracao_minutos"
-            defaultValue="50"
+            defaultValue={defaultValues?.duracao_minutos ?? 50}
             className="h-10 w-full rounded-[10px] border border-[var(--line)] bg-white px-3 text-sm text-[var(--ink)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent"
           >
             <option value="30">30 min</option>
@@ -87,7 +97,7 @@ export function NovaConsultaForm({ action, pacientes }: NovaConsultaFormProps) {
           <select
             id="status"
             name="status"
-            defaultValue="pendente"
+            defaultValue={defaultValues?.status ?? "pendente"}
             className="h-10 w-full rounded-[10px] border border-[var(--line)] bg-white px-3 text-sm text-[var(--ink)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent"
           >
             <option value="pendente">Pendente</option>
@@ -104,6 +114,7 @@ export function NovaConsultaForm({ action, pacientes }: NovaConsultaFormProps) {
           id="observacoes"
           name="observacoes"
           rows={3}
+          defaultValue={defaultValues?.observacoes ?? ""}
           placeholder="Informações adicionais..."
           className="w-full rounded-[10px] border border-[var(--line)] bg-white px-3 py-2.5 text-sm text-[var(--ink)] placeholder:text-[var(--ink-3)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent resize-none"
         />
@@ -128,7 +139,7 @@ export function NovaConsultaForm({ action, pacientes }: NovaConsultaFormProps) {
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
           )}
-          Agendar consulta
+          {submitLabel}
         </button>
       </div>
     </form>

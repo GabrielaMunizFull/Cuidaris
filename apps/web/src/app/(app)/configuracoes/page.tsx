@@ -6,6 +6,9 @@ import { logoutAction } from "@/app/(auth)/actions";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { PortalButtonClient } from "./_components/portal-button";
+import { EditarPerfilForm } from "./_components/editar-perfil-form";
+import { TrocarSenhaForm } from "./_components/trocar-senha-form";
+import { LembretesToggle } from "./_components/lembretes-toggle";
 
 export const metadata: Metadata = { title: "Configurações — Cuidaris" };
 
@@ -28,7 +31,7 @@ export default async function ConfiguracoesPage() {
   const { data: { user } } = await supabase.auth.getUser();
   const { data: assistente } = await supabase
     .from("assistentes")
-    .select("nome, email, plano, status_assinatura, trial_termina_em, stripe_customer_id, tipo_conta")
+    .select("nome, email, plano, status_assinatura, trial_termina_em, stripe_customer_id, tipo_conta, lembretes_ativos")
     .single();
 
   const trialTermina = assistente?.trial_termina_em
@@ -93,6 +96,24 @@ export default async function ConfiguracoesPage() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Notificações */}
+      <div className="bg-[var(--surface)] border border-[var(--line)] rounded-[var(--radius)] p-6">
+        <h2 className="text-sm font-semibold text-[var(--ink)] mb-2">Notificações</h2>
+        <LembretesToggle ativo={assistente?.lembretes_ativos ?? true} />
+      </div>
+
+      {/* Editar nome */}
+      <div className="bg-[var(--surface)] border border-[var(--line)] rounded-[var(--radius)] p-6">
+        <h2 className="text-sm font-semibold text-[var(--ink)] mb-4">Editar nome</h2>
+        <EditarPerfilForm nomeAtual={assistente?.nome ?? ""} />
+      </div>
+
+      {/* Trocar senha */}
+      <div className="bg-[var(--surface)] border border-[var(--line)] rounded-[var(--radius)] p-6">
+        <h2 className="text-sm font-semibold text-[var(--ink)] mb-4">Trocar senha</h2>
+        <TrocarSenhaForm />
       </div>
 
       {/* Conta */}

@@ -2,6 +2,9 @@ import Link from "next/link";
 import { Users, CalendarDays, FileText } from "lucide-react";
 import { CuidarisLogo } from "@/components/cuidaris-logo";
 import { PricingSection } from "./_components/pricing-section";
+import { ComoFunciona } from "./_components/como-funciona";
+import { Depoimentos } from "./_components/depoimentos";
+import { Faq } from "./_components/faq";
 
 const features = [
   {
@@ -94,8 +97,43 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Como funciona */}
+      <ComoFunciona />
+
+      {/* Depoimentos */}
+      <Depoimentos />
+
       {/* Pricing */}
       <PricingSection />
+
+      {/* FAQ */}
+      <Faq />
+
+      {/* CTA Final */}
+      <section className="py-20 px-6 bg-[var(--accent)]">
+        <div className="max-w-2xl mx-auto text-center">
+          <h2 className="text-3xl font-bold text-white tracking-tight mb-3">
+            Pronta para simplificar sua rotina?
+          </h2>
+          <p className="text-emerald-100 mb-8 leading-relaxed">
+            14 dias grátis, sem cartão. Cancele quando quiser.
+          </p>
+          <div className="flex items-center justify-center gap-3 flex-wrap">
+            <Link
+              href="/cadastro"
+              className="h-11 px-6 rounded-[var(--radius)] bg-white text-[var(--accent)] font-semibold hover:bg-emerald-50 transition-colors flex items-center"
+            >
+              Começar grátis agora
+            </Link>
+            <a
+              href="mailto:gabrielasmunizf@gmail.com"
+              className="h-11 px-6 rounded-[var(--radius)] border border-white/30 text-white text-sm font-medium hover:bg-white/10 transition-colors flex items-center"
+            >
+              Falar com a equipe
+            </a>
+          </div>
+        </div>
+      </section>
 
       {/* Footer */}
       <footer className="border-t border-[var(--line)] py-8 px-6 text-center">

@@ -83,6 +83,23 @@ export interface Convenio {
   created_at: string;
 }
 
+export type TipoDocumento = "prontuario" | "exame" | "receita" | "atestado" | "outro";
+
+export interface DocumentoPaciente {
+  id: string;
+  profissional_id: string;
+  assistente_id: string;
+  paciente_id: string;
+  titulo: string;
+  tipo: TipoDocumento;
+  storage_path: string;
+  nome_arquivo: string;
+  tamanho_bytes: number | null;
+  mime_type: string | null;
+  created_at: string;
+  paciente?: Pick<Paciente, "id" | "nome">;
+}
+
 export const LIMITE_PROFISSIONAIS: Record<PlanoAssinatura, number> = {
   solo: 1,
   essencial: 1,

@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { format, startOfWeek, addDays, isSameDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pencil } from "lucide-react";
 import { Badge } from "@cuidaris/ui";
 import type { Consulta, StatusConsulta } from "@cuidaris/db";
 import { atualizarStatusConsultaAction } from "../actions";
+import { ExcluirConsultaForm } from "./excluir-consulta-form";
 
 interface AgendaSemanalProps {
   consultas: (Consulta & { paciente: { id: string; nome: string } | null })[];
@@ -105,12 +107,29 @@ export function AgendaSemanal({ consultas, profissionalId }: AgendaSemanalProps)
                       key={consulta.id}
                       className="bg-[var(--surface)] border border-[var(--line)] rounded-[10px] p-2 text-xs"
                     >
-                      <p className="font-medium text-[var(--ink)] tabular-nums">
-                        {format(new Date(consulta.data_hora), "HH:mm")}
-                      </p>
-                      <p className="text-[var(--ink-2)] truncate mt-0.5">
-                        {consulta.paciente?.nome ?? "—"}
-                      </p>
+                      <div className="flex items-start justify-between gap-1">
+                        <div className="min-w-0">
+                          <p className="font-medium text-[var(--ink)] tabular-nums">
+                            {format(new Date(consulta.data_hora), "HH:mm")}
+                          </p>
+                          <p className="text-[var(--ink-2)] truncate mt-0.5">
+                            {consulta.paciente?.nome ?? "—"}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-0.5 shrink-0">
+                          <Link
+                            href={`/profissionais/${profissionalId}/agenda/${consulta.id}/editar`}
+                            title="Editar consulta"
+                            className="p-1 rounded-[6px] text-[var(--ink-3)] hover:text-[var(--accent)] hover:bg-[var(--accent-soft)] transition-colors"
+                          >
+                            <Pencil size={12} />
+                          </Link>
+                          <ExcluirConsultaForm
+                            profissionalId={profissionalId}
+                            consultaId={consulta.id}
+                          />
+                        </div>
+                      </div>
                       <div className="mt-1.5">
                         <select
                           value={consulta.status}

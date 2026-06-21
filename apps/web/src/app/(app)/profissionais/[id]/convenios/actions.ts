@@ -60,6 +60,17 @@ export async function editarConvenioAction(
   if (!parsed.success) return { fieldErrors: parsed.error.flatten().fieldErrors };
 
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Não autorizado." };
+
+  const { data: prof } = await supabase
+    .from("profissionais")
+    .select("id")
+    .eq("id", profissionalId)
+    .eq("assistente_id", user.id)
+    .single();
+  if (!prof) return { error: "Não autorizado." };
+
   const { error } = await supabase
     .from("convenios")
     .update({ nome: parsed.data.nome, valor_padrao: parsed.data.valor_padrao })
@@ -76,6 +87,17 @@ export async function desativarConvenioAction(
   convenioId: string
 ): Promise<ActionResult> {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Não autorizado." };
+
+  const { data: prof } = await supabase
+    .from("profissionais")
+    .select("id")
+    .eq("id", profissionalId)
+    .eq("assistente_id", user.id)
+    .single();
+  if (!prof) return { error: "Não autorizado." };
+
   const { error } = await supabase
     .from("convenios")
     .update({ ativo: false })

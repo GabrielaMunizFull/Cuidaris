@@ -4,10 +4,11 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { addDays, format, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Calendar, AlertTriangle, DollarSign, Clock, Plus } from "lucide-react";
+import { Calendar, AlertTriangle, DollarSign, Clock, Plus, TrendingUp } from "lucide-react";
 import { StatCard } from "./_components/stat-card";
 import { ProfissionalCard } from "./_components/profissional-card";
 import { DashboardAutonomo } from "./_components/dashboard-autonomo";
+import { OnboardingChecklist } from "./_components/onboarding-checklist";
 
 export const metadata: Metadata = {
   title: "Dashboard — Cuidaris",
@@ -71,23 +72,29 @@ export default async function DashboardPage({
   const inicioOntem = startOfDay(addDays(agora, -1)).toISOString();
   const fimOntem = endOfDay(addDays(agora, -1)).toISOString();
   const fimSemana = endOfDay(addDays(agora, 7)).toISOString();
+  const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1).toISOString().slice(0, 10);
+  const fimMes = new Date(agora.getFullYear(), agora.getMonth() + 1, 0).toISOString().slice(0, 10);
 
   const [
     { data: consultasHoje },
     { data: consultasOntem },
     { data: profissionais },
     { data: pacientesList },
-    { data: inadimplentes },
+    { data: inadimplentesDetail },
     { data: proximasConsultas },
     { data: pendencias },
+    { data: lancamentosMes },
+    { data: algumLancamento },
   ] = await Promise.all([
     supabase.from("agenda").select("id, data_hora, status, profissional_id, paciente:pacientes(nome), profissional:profissionais(nome)").gte("data_hora", inicioHoje).lte("data_hora", fimHoje).order("data_hora"),
     supabase.from("agenda").select("id").gte("data_hora", inicioOntem).lte("data_hora", fimOntem),
     supabase.from("profissionais").select("id, nome, especialidade, registro, foto_url").eq("ativo", true).order("nome"),
     supabase.from("pacientes").select("profissional_id").eq("ativo", true),
-    supabase.from("lancamentos").select("profissional_id").eq("status", "atrasado"),
+    supabase.from("lancamentos").select("profissional_id, valor, paciente:pacientes(nome), profissional:profissionais(id, nome)").eq("status", "atrasado").order("created_at", { ascending: false }).limit(8),
     supabase.from("agenda").select("id, data_hora, status, paciente:pacientes(nome), profissional:profissionais(nome)").gt("data_hora", fimHoje).lte("data_hora", fimSemana).order("data_hora").limit(5),
     supabase.from("agenda").select("id, data_hora, profissional_id, paciente:pacientes(nome), profissional:profissionais(nome)").gte("data_hora", inicioHoje).lte("data_hora", fimSemana).eq("status", "pendente").order("data_hora").limit(5),
+    supabase.from("lancamentos").select("valor, status").gte("data", inicioMes).lte("data", fimMes),
+    supabase.from("lancamentos").select("id").limit(1),
   ]);
 
   // Agrega por profissional_id em memória (evita N+1)
@@ -100,7 +107,7 @@ export default async function DashboardPage({
     pacientesMap.set(p.profissional_id, (pacientesMap.get(p.profissional_id) ?? 0) + 1);
   }
   const inadimplentesMap = new Map<string, number>();
-  for (const i of inadimplentes ?? []) {
+  for (const i of inadimplentesDetail ?? []) {
     inadimplentesMap.set(i.profissional_id, (inadimplentesMap.get(i.profissional_id) ?? 0) + 1);
   }
 
@@ -110,16 +117,29 @@ export default async function DashboardPage({
   const trendHoje = diffOntem === 0 ? undefined : diffOntem > 0 ? `↗ +${diffOntem} vs ontem` : `↘ ${diffOntem} vs ontem`;
 
   const totalPendencias = pendencias?.length ?? 0;
-  const totalInadimplentes = inadimplentes?.length ?? 0;
+  const totalInadimplentes = inadimplentesDetail?.length ?? 0;
   const totalProximos = proximasConsultas?.length ?? 0;
   const totalProfissionais = profissionais?.length ?? 0;
   const totalPacientes = pacientesList?.length ?? 0;
+
+  const recebidoMes = (lancamentosMes ?? [])
+    .filter((l) => l.status === "pago")
+    .reduce((s, l) => s + l.valor, 0);
+  const recebidoMesLabel = `R$ ${recebidoMes.toFixed(2).replace(".", ",")}`;
+  const mesFaturamento = format(agora, "MMM", { locale: ptBR });
 
   const statusColors: Record<string, string> = {
     confirmado: "bg-emerald-50 text-emerald-700 border-emerald-200",
     pendente: "bg-amber-50 text-amber-700 border-amber-200",
     cancelado: "bg-red-50 text-red-700 border-red-200",
     remarcado: "bg-blue-50 text-blue-700 border-blue-200",
+  };
+
+  const statusLabels: Record<string, string> = {
+    confirmado: "Confirmado",
+    pendente: "Pendente",
+    cancelado: "Cancelado",
+    remarcado: "Remarcado",
   };
 
   return (
@@ -150,12 +170,22 @@ export default async function DashboardPage({
         </Link>
       </div>
 
+      {/* Onboarding checklist — some quando tudo estiver feito */}
+      <OnboardingChecklist
+        temProfissional={(profissionais?.length ?? 0) > 0}
+        temPaciente={(pacientesList?.length ?? 0) > 0}
+        temConsulta={(consultasHoje?.length ?? 0) > 0 || (proximasConsultas?.length ?? 0) > 0}
+        temLancamento={(algumLancamento?.length ?? 0) > 0}
+        primeiroProfissionalId={profissionais?.[0]?.id}
+      />
+
       {/* Stat cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         <StatCard icon={Calendar} label="Consultas hoje" value={totalConsultasHoje} trend={trendHoje} />
+        <StatCard icon={Clock} label="Próximos 7 dias" value={totalProximos} />
         <StatCard icon={AlertTriangle} label="Pendências" value={totalPendencias} highlight={totalPendencias > 0 ? "amber" : undefined} />
         <StatCard icon={DollarSign} label="Inadimplentes" value={totalInadimplentes} highlight={totalInadimplentes > 0 ? "red" : undefined} />
-        <StatCard icon={Clock} label="Próximos 7 dias" value={totalProximos} />
+        <StatCard icon={TrendingUp} label={`Recebido em ${mesFaturamento}`} value={recebidoMesLabel} highlight="green" />
       </div>
 
       {/* Grid de profissionais */}
@@ -194,8 +224,8 @@ export default async function DashboardPage({
         )}
       </section>
 
-      {/* Linha inferior: consultas hoje + pendências */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Linha inferior: consultas hoje + pendências + inadimplência */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Consultas de hoje */}
         <section>
           <h2 className="text-base font-semibold text-[var(--ink)] mb-4">Consultas de hoje</h2>
@@ -214,14 +244,14 @@ export default async function DashboardPage({
                     </span>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-[var(--ink)] truncate">
-                        {(c.paciente as { nome: string } | null)?.nome ?? "—"}
+                        {(c.paciente as unknown as { nome: string } | null)?.nome ?? "—"}
                       </p>
                       <p className="text-xs text-[var(--ink-3)] truncate">
-                        {(c.profissional as { nome: string } | null)?.nome ?? "—"}
+                        {(c.profissional as unknown as { nome: string } | null)?.nome ?? "—"}
                       </p>
                     </div>
                     <span className={`text-xs font-medium px-2 py-0.5 rounded border ${statusColors[c.status] ?? ""}`}>
-                      {c.status}
+                      {statusLabels[c.status] ?? c.status}
                     </span>
                   </li>
                 ))}
@@ -254,10 +284,10 @@ export default async function DashboardPage({
                   <li key={p.id} className="px-5 py-3.5 flex items-center gap-3">
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-[var(--ink)] truncate">
-                        {(p.paciente as { nome: string } | null)?.nome ?? "—"}
+                        {(p.paciente as unknown as { nome: string } | null)?.nome ?? "—"}
                       </p>
                       <p className="text-xs text-[var(--ink-3)] truncate">
-                        {(p.profissional as { nome: string } | null)?.nome ?? "—"}
+                        {(p.profissional as unknown as { nome: string } | null)?.nome ?? "—"}
                         {" · "}
                         {format(new Date(p.data_hora), "EEE d/MM 'às' HH:mm", { locale: ptBR })}
                       </p>
@@ -270,6 +300,55 @@ export default async function DashboardPage({
                     </Link>
                   </li>
                 ))}
+              </ul>
+            )}
+          </div>
+        </section>
+        {/* Inadimplência */}
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-base font-semibold text-[var(--ink)]">Inadimplência</h2>
+            {totalInadimplentes > 0 && (
+              <span className="text-xs font-semibold text-red-700 bg-red-50 border border-red-200 px-2 py-0.5 rounded-full">
+                {totalInadimplentes} {totalInadimplentes === 1 ? "em atraso" : "em atraso"}
+              </span>
+            )}
+          </div>
+          <div className="bg-[var(--surface)] border border-[var(--line)] rounded-[var(--radius)]">
+            {!inadimplentesDetail || inadimplentesDetail.length === 0 ? (
+              <div className="px-6 py-10 text-center">
+                <p className="text-sm font-medium text-[var(--ink-2)]">Sem inadimplência</p>
+                <p className="text-xs text-[var(--ink-3)] mt-1">
+                  Nenhum lançamento em atraso no momento.
+                </p>
+              </div>
+            ) : (
+              <ul className="divide-y divide-[var(--line)]">
+                {inadimplentesDetail.map((l, i) => {
+                  const prof = l.profissional as unknown as { id: string; nome: string } | null;
+                  const paciente = l.paciente as unknown as { nome: string } | null;
+                  return (
+                    <li key={i} className="px-5 py-3.5 flex items-center gap-3">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-[var(--ink)] truncate">
+                          {paciente?.nome ?? "—"}
+                        </p>
+                        <p className="text-xs text-[var(--ink-3)] truncate">{prof?.nome ?? "—"}</p>
+                      </div>
+                      <span className="text-sm font-semibold text-red-600 tabular-nums shrink-0">
+                        R$ {l.valor.toFixed(2).replace(".", ",")}
+                      </span>
+                      {prof?.id && (
+                        <Link
+                          href={`/profissionais/${prof.id}/financeiro`}
+                          className="shrink-0 text-xs font-medium text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors"
+                        >
+                          Ver
+                        </Link>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </div>

@@ -50,7 +50,7 @@ export default function EsqueciASenhaPage() {
           </div>
 
           <form action={formAction} className="space-y-5">
-            {"error" in state && state.error && (
+            {"error" in state && !!state.error && (
               <div className="rounded-[10px] bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700" role="alert">
                 {state.error as string}
               </div>
@@ -70,7 +70,7 @@ export default function EsqueciASenhaPage() {
                 className="h-11 w-full rounded-[10px] border border-[var(--line)] bg-white px-3.5 text-sm text-[var(--ink)] placeholder:text-[var(--ink-3)] transition-colors focus:outline-none focus:border-[var(--accent)] focus:ring-3 focus:ring-[var(--accent)]/15"
               />
               {"fieldErrors" in state && (state.fieldErrors as Record<string, string[]>)?.email && (
-                <p className="text-xs text-red-600">{(state.fieldErrors as Record<string, string[]>).email[0]}</p>
+                <p className="text-xs text-red-600">{(state.fieldErrors as Record<string, string[]>).email?.[0]}</p>
               )}
             </div>
 

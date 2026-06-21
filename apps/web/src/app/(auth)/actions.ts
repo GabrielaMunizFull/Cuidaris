@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { loginSchema, signupComTipoSchema } from "@/lib/validations/auth";
+import { sendBoasVindas } from "@cuidaris/emails";
 
 export type ActionResult = {
   error?: string;
@@ -93,6 +94,8 @@ export async function signupAction(
     }
     return { error: "Não conseguimos criar sua conta agora. Verifique sua conexão e tente novamente." };
   }
+
+  sendBoasVindas(parsed.data.email, parsed.data.nome).catch(() => {});
 
   redirect("/dashboard?novo=1");
 }

@@ -3,24 +3,26 @@ import type { LucideIcon } from "lucide-react";
 interface StatCardProps {
   icon: LucideIcon;
   label: string;
-  value: number;
+  value: number | string;
   trend?: string;
-  highlight?: "amber" | "red";
+  highlight?: "amber" | "red" | "green";
 }
 
 const highlightClasses = {
   amber: "text-amber-600",
   red: "text-red-600",
+  green: "text-emerald-600",
 };
 
 const iconBgClasses = {
   amber: "bg-amber-50 text-amber-600",
   red: "bg-red-50 text-red-600",
+  green: "bg-emerald-50 text-emerald-600",
   default: "bg-[var(--accent-soft)] text-[var(--accent)]",
 };
 
 export function StatCard({ icon: Icon, label, value, trend, highlight }: StatCardProps) {
-  const iconBg = highlight ? iconBgClasses[highlight] : iconBgClasses.default;
+  const iconBg = highlight ? (iconBgClasses[highlight] ?? iconBgClasses.default) : iconBgClasses.default;
   const valueColor = highlight ? highlightClasses[highlight] : "text-[var(--ink)]";
 
   return (

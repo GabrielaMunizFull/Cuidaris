@@ -6,13 +6,22 @@ import type { ActionResult } from "../actions";
 interface LancamentoFormProps {
   action: (prevState: ActionResult, formData: FormData) => Promise<ActionResult>;
   pacientes: { id: string; nome: string }[];
+  defaultValues?: {
+    descricao?: string;
+    valor?: number;
+    data?: string;
+    forma_pagamento?: string;
+    status?: string;
+    paciente_id?: string | null;
+  };
+  submitLabel?: string;
 }
 
 const initialState: ActionResult = {};
 
 const hoje = new Date().toISOString().slice(0, 10);
 
-export function LancamentoForm({ action, pacientes }: LancamentoFormProps) {
+export function LancamentoForm({ action, pacientes, defaultValues, submitLabel = "Salvar lançamento" }: LancamentoFormProps) {
   const [state, formAction, isPending] = useActionState(action, initialState);
 
   return (
@@ -32,6 +41,7 @@ export function LancamentoForm({ action, pacientes }: LancamentoFormProps) {
           name="descricao"
           type="text"
           required
+          defaultValue={defaultValues?.descricao ?? ""}
           placeholder="Consulta, sessão, avaliação..."
           className="h-10 w-full rounded-[10px] border border-[var(--line)] bg-white px-3 text-sm text-[var(--ink)] placeholder:text-[var(--ink-3)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent"
         />
@@ -52,6 +62,7 @@ export function LancamentoForm({ action, pacientes }: LancamentoFormProps) {
             step="0.01"
             min="0.01"
             required
+            defaultValue={defaultValues?.valor ?? ""}
             placeholder="0,00"
             className="h-10 w-full rounded-[10px] border border-[var(--line)] bg-white px-3 text-sm text-[var(--ink)] placeholder:text-[var(--ink-3)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent"
           />
@@ -69,7 +80,7 @@ export function LancamentoForm({ action, pacientes }: LancamentoFormProps) {
             name="data"
             type="date"
             required
-            defaultValue={hoje}
+            defaultValue={defaultValues?.data ?? hoje}
             className="h-10 w-full rounded-[10px] border border-[var(--line)] bg-white px-3 text-sm text-[var(--ink)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent"
           />
         </div>
@@ -82,6 +93,7 @@ export function LancamentoForm({ action, pacientes }: LancamentoFormProps) {
             id="forma_pagamento"
             name="forma_pagamento"
             required
+            defaultValue={defaultValues?.forma_pagamento ?? "pix"}
             className="h-10 w-full rounded-[10px] border border-[var(--line)] bg-white px-3 text-sm text-[var(--ink)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent"
           >
             <option value="pix">PIX</option>
@@ -100,7 +112,7 @@ export function LancamentoForm({ action, pacientes }: LancamentoFormProps) {
           <select
             id="status"
             name="status"
-            defaultValue="pendente"
+            defaultValue={defaultValues?.status ?? "pendente"}
             className="h-10 w-full rounded-[10px] border border-[var(--line)] bg-white px-3 text-sm text-[var(--ink)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent"
           >
             <option value="pago">Pago</option>
@@ -118,6 +130,7 @@ export function LancamentoForm({ action, pacientes }: LancamentoFormProps) {
           <select
             id="paciente_id"
             name="paciente_id"
+            defaultValue={defaultValues?.paciente_id ?? ""}
             className="h-10 w-full rounded-[10px] border border-[var(--line)] bg-white px-3 text-sm text-[var(--ink)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent"
           >
             <option value="">Sem vínculo</option>
@@ -147,7 +160,7 @@ export function LancamentoForm({ action, pacientes }: LancamentoFormProps) {
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
           )}
-          Salvar lançamento
+          {submitLabel}
         </button>
       </div>
     </form>

@@ -2,23 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { Badge } from "@cuidaris/ui";
-import { Plus, FileText } from "lucide-react";
+import { Plus } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { LancamentoStatusForm } from "./_components/lancamento-status-form";
+import { LancamentosLista } from "./_components/lancamentos-lista";
 
 export const metadata: Metadata = {
   title: "Financeiro — Cuidaris",
-};
-
-const formasPagamento: Record<string, string> = {
-  dinheiro: "Dinheiro",
-  pix: "PIX",
-  cartao_credito: "Cartão de Crédito",
-  cartao_debito: "Cartão de Débito",
-  transferencia: "Transferência",
-  convenio: "Convênio",
 };
 
 export default async function FinanceiroPage({
@@ -111,41 +101,14 @@ export default async function FinanceiroPage({
           </Link>
         </div>
       ) : (
-        <div className="bg-[var(--surface)] border border-[var(--line)] rounded-[var(--radius)] divide-y divide-[var(--line)]">
-          {lancamentos.map((lanc) => (
-            <div key={lanc.id} className="flex items-center gap-4 px-6 py-4">
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-[var(--ink)] truncate">{lanc.descricao}</p>
-                <p className="text-xs text-[var(--ink-3)] mt-0.5">
-                  {(lanc.paciente as { nome: string } | null)?.nome ?? ""}{" "}
-                  {(lanc.paciente as { nome: string } | null)?.nome ? "·" : ""}{" "}
-                  {formasPagamento[lanc.forma_pagamento] ?? lanc.forma_pagamento} ·{" "}
-                  {format(new Date(lanc.data + "T12:00:00"), "d/MM/yyyy")}
-                </p>
-              </div>
-
-              <p className="text-sm font-semibold text-[var(--ink)] tabular-nums">
-                R$ {lanc.valor.toFixed(2).replace(".", ",")}
-              </p>
-
-              {lanc.numero_recibo && (
-                <Link
-                  href={`/profissionais/${id}/financeiro/${lanc.id}/recibo`}
-                  className="text-[var(--ink-3)] hover:text-[var(--accent)] transition-colors"
-                  title={`Recibo ${lanc.numero_recibo}`}
-                >
-                  <FileText size={16} />
-                </Link>
-              )}
-
-              <LancamentoStatusForm
-                profissionalId={id}
-                lancamentoId={lanc.id}
-                statusAtual={lanc.status as "pago" | "pendente" | "atrasado"}
-              />
-            </div>
-          ))}
-        </div>
+        <LancamentosLista
+          lancamentos={lancamentos.map((l) => ({
+            ...l,
+            paciente: l.paciente as unknown as { nome: string } | null,
+            status: l.status as "pago" | "pendente" | "atrasado",
+          }))}
+          profissionalId={id}
+        />
       )}
     </div>
   );

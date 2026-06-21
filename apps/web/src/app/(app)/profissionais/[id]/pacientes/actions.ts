@@ -69,6 +69,16 @@ export async function editarPacienteAction(
   }
 
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Não autorizado." };
+
+  const { data: prof } = await supabase
+    .from("profissionais")
+    .select("id")
+    .eq("id", profissionalId)
+    .eq("assistente_id", user.id)
+    .single();
+  if (!prof) return { error: "Não autorizado." };
 
   const { error } = await supabase
     .from("pacientes")
@@ -92,6 +102,16 @@ export async function desativarPacienteAction(
   pacienteId: string
 ): Promise<ActionResult> {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Não autorizado." };
+
+  const { data: prof } = await supabase
+    .from("profissionais")
+    .select("id")
+    .eq("id", profissionalId)
+    .eq("assistente_id", user.id)
+    .single();
+  if (!prof) return { error: "Não autorizado." };
 
   const { error } = await supabase
     .from("pacientes")

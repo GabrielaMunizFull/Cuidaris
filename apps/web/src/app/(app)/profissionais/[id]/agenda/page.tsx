@@ -57,7 +57,7 @@ export default async function AgendaPage({
 
       <div className="bg-[var(--surface)] border border-[var(--line)] rounded-[var(--radius)] p-6">
         <AgendaSemanal
-          consultas={(consultas ?? []) as (Consulta & { paciente: { id: string; nome: string } | null })[]}
+          consultas={(consultas ?? []) as unknown as (Consulta & { paciente: { id: string; nome: string } | null })[]}
           profissionalId={id}
         />
       </div>

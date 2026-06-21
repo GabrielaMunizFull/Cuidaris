@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
+import { Download } from "lucide-react";
 import { MesSeletor } from "./_components/mes-seletor";
+import { GraficoTendencia } from "./_components/grafico-tendencia";
 
 export const metadata: Metadata = { title: "Relatórios — Cuidaris" };
 
@@ -43,7 +45,12 @@ export default async function RelatoriosPage({
 
   const supabase = await createClient();
 
-  const [{ data: lancamentos }, { data: consultas }, { data: profissionais }] =
+  // Janela dos últimos 12 meses para o gráfico de tendência
+  const anoInicio = mes <= 6 ? ano - 1 : ano;
+  const mesInicio = mes <= 6 ? mes + 6 : mes - 6;
+  const inicioTendencia = `${anoInicio}-${String(mesInicio).padStart(2, "0")}-01`;
+
+  const [{ data: lancamentos }, { data: consultas }, { data: profissionais }, { data: lancamentosTendencia }] =
     await Promise.all([
       supabase
         .from("lancamentos")
@@ -60,6 +67,11 @@ export default async function RelatoriosPage({
         .select("id, nome")
         .eq("ativo", true)
         .order("nome"),
+      supabase
+        .from("lancamentos")
+        .select("valor, status, data")
+        .gte("data", inicioTendencia)
+        .lte("data", fim),
     ]);
 
   const l = lancamentos ?? [];
@@ -105,6 +117,31 @@ export default async function RelatoriosPage({
   }
   const porConvenio = [...convenioMap.entries()].sort((a, b) => b[1] - a[1]);
 
+  // Tendência: agrega por mês/ano
+  const tendenciaMap = new Map<string, { faturado: number; recebido: number }>();
+  for (const lt of lancamentosTendencia ?? []) {
+    const d = new Date(lt.data + "T12:00:00");
+    const key = `${d.getFullYear()}-${d.getMonth() + 1}`;
+    const entry = tendenciaMap.get(key) ?? { faturado: 0, recebido: 0 };
+    entry.faturado += lt.valor;
+    if (lt.status === "pago") entry.recebido += lt.valor;
+    tendenciaMap.set(key, entry);
+  }
+  // Gera os 12 meses no intervalo
+  const dadosTendencia = Array.from({ length: 12 }, (_, i) => {
+    let m = mesInicio + i;
+    let a = anoInicio;
+    if (m > 12) { m -= 12; a += 1; }
+    const key = `${a}-${m}`;
+    const entry = tendenciaMap.get(key) ?? { faturado: 0, recebido: 0 };
+    return {
+      mes: m,
+      ano: a,
+      label: MESES[m - 1]!.slice(0, 3),
+      ...entry,
+    };
+  });
+
   const semDados = l.length === 0;
 
   return (
@@ -117,7 +154,17 @@ export default async function RelatoriosPage({
             {MESES[mes - 1]} {ano}
           </p>
         </div>
-        <MesSeletor mes={mes} ano={ano} />
+        <div className="flex items-center gap-2">
+          <MesSeletor mes={mes} ano={ano} />
+          <a
+            href={`/api/relatorios/csv?mes=${mes}&ano=${ano}`}
+            download
+            className="inline-flex items-center gap-2 h-9 px-4 rounded-[var(--radius)] border border-[var(--line)] bg-[var(--surface)] text-sm text-[var(--ink-2)] hover:bg-[var(--bg)] hover:text-[var(--ink)] transition-colors"
+          >
+            <Download size={14} />
+            CSV
+          </a>
+        </div>
       </div>
 
       {/* Cards de resumo */}
@@ -134,6 +181,9 @@ export default async function RelatoriosPage({
           </div>
         ))}
       </div>
+
+      {/* Gráfico de tendência — sempre visível */}
+      <GraficoTendencia dados={dadosTendencia} mesAtivo={mes} anoAtivo={ano} />
 
       {semDados ? (
         <div className="bg-[var(--surface)] border border-[var(--line)] rounded-[var(--radius)] p-12 text-center">

@@ -7,6 +7,7 @@ import { Phone, Mail, Pencil, Calendar, DollarSign } from "lucide-react";
 import { format, differenceInYears } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { DesativarPacienteForm } from "./_components/desativar-paciente-form";
+import { AnotacoesSection } from "./_components/anotacoes-section";
 
 export const metadata: Metadata = {
   title: "Perfil do paciente — Cuidaris",
@@ -33,7 +34,7 @@ export default async function PerfilPacientePage({
   const { id: profissionalId, pacienteId } = await params;
   const supabase = await createClient();
 
-  const [{ data: paciente }, { data: consultas }, { data: lancamentos }] =
+  const [{ data: paciente }, { data: consultas }, { data: lancamentos }, { data: anotacoes }] =
     await Promise.all([
       supabase
         .from("pacientes")
@@ -55,6 +56,13 @@ export default async function PerfilPacientePage({
         .eq("profissional_id", profissionalId)
         .order("data", { ascending: false })
         .limit(20),
+      supabase
+        .from("anotacoes_pacientes")
+        .select("id, conteudo, created_at, updated_at")
+        .eq("paciente_id", pacienteId)
+        .eq("profissional_id", profissionalId)
+        .order("created_at", { ascending: false })
+        .limit(50),
     ]);
 
   if (!paciente || !paciente.ativo) notFound();
@@ -189,6 +197,13 @@ export default async function PerfilPacientePage({
           )}
         </div>
       </div>
+
+      {/* Anotações / prontuário */}
+      <AnotacoesSection
+        anotacoes={anotacoes ?? []}
+        profissionalId={profissionalId}
+        pacienteId={pacienteId}
+      />
 
       {/* Zona de perigo */}
       <div className="pt-2 border-t border-[var(--line)]">

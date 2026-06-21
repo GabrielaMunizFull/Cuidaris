@@ -117,7 +117,7 @@ export async function DashboardAutonomo({ profissionalId, saudacao }: DashboardA
                       {format(new Date(c.data_hora), "HH:mm")}
                     </span>
                     <p className="flex-1 text-sm font-medium text-[var(--ink)] truncate">
-                      {(c.paciente as { nome: string } | null)?.nome ?? "—"}
+                      {(c.paciente as unknown as { nome: string } | null)?.nome ?? "—"}
                     </p>
                     <span className={`text-xs font-medium px-2 py-0.5 rounded border ${statusColors[c.status] ?? ""}`}>
                       {c.status}
@@ -150,7 +150,7 @@ export async function DashboardAutonomo({ profissionalId, saudacao }: DashboardA
                   <li key={p.id} className="px-5 py-3.5 flex items-center gap-3">
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-[var(--ink)] truncate">
-                        {(p.paciente as { nome: string } | null)?.nome ?? "—"}
+                        {(p.paciente as unknown as { nome: string } | null)?.nome ?? "—"}
                       </p>
                       <p className="text-xs text-[var(--ink-3)]">
                         {format(new Date(p.data_hora), "EEE d/MM 'às' HH:mm", { locale: ptBR })}

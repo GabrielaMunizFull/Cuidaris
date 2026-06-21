@@ -3,9 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/stripe";
 import { profissionalSchema } from "@/lib/validations/profissional";
 import { LIMITE_PROFISSIONAIS } from "@cuidaris/db";
 import type { PlanoAssinatura } from "@cuidaris/db";
+
+const BUCKET_FOTOS = "fotos";
+const MAX_FOTO_BYTES = 3 * 1024 * 1024; // 3 MB
 
 export type ActionResult = {
   error?: string;
@@ -98,6 +102,16 @@ export async function editarProfissionalAction(
   }
 
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Não autorizado." };
+
+  const { data: prof } = await supabase
+    .from("profissionais")
+    .select("id")
+    .eq("id", id)
+    .eq("assistente_id", user.id)
+    .single();
+  if (!prof) return { error: "Não autorizado." };
 
   const { error } = await supabase
     .from("profissionais")
@@ -117,8 +131,69 @@ export async function editarProfissionalAction(
   redirect(`/profissionais/${id}/agenda`);
 }
 
+export async function uploadFotoAction(
+  profissionalId: string,
+  _prevState: ActionResult,
+  formData: FormData
+): Promise<ActionResult> {
+  const foto = formData.get("foto") as File | null;
+  if (!foto || foto.size === 0) return { fieldErrors: { foto: ["Selecione uma imagem."] } };
+  if (foto.size > MAX_FOTO_BYTES) return { fieldErrors: { foto: ["A imagem deve ter no máximo 3 MB."] } };
+  if (!foto.type.startsWith("image/")) return { fieldErrors: { foto: ["Envie apenas imagens (JPG, PNG, WebP)."] } };
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Não autorizado." };
+
+  const { data: prof } = await supabase
+    .from("profissionais")
+    .select("id")
+    .eq("id", profissionalId)
+    .eq("assistente_id", user.id)
+    .single();
+  if (!prof) return { error: "Não autorizado." };
+
+  const ext = foto.name.split(".").pop() ?? "jpg";
+  const storagePath = `profissionais/${profissionalId}/foto.${ext}`;
+  const buffer = Buffer.from(await foto.arrayBuffer());
+
+  const { error: uploadError } = await supabaseAdmin.storage
+    .from(BUCKET_FOTOS)
+    .upload(storagePath, buffer, { contentType: foto.type, upsert: true });
+
+  if (uploadError) return { error: "Erro ao enviar a imagem. Tente novamente." };
+
+  const { data: { publicUrl } } = supabaseAdmin.storage
+    .from(BUCKET_FOTOS)
+    .getPublicUrl(storagePath);
+
+  // Adiciona cache-buster para forçar recarga da imagem no browser
+  const fotoUrl = `${publicUrl}?t=${Date.now()}`;
+
+  const { error: dbError } = await supabase
+    .from("profissionais")
+    .update({ foto_url: fotoUrl })
+    .eq("id", profissionalId);
+
+  if (dbError) return { error: "Erro ao salvar a foto. Tente novamente." };
+
+  revalidatePath(`/profissionais/${profissionalId}`);
+  revalidatePath("/dashboard");
+  return { success: true } as ActionResult & { success: boolean };
+}
+
 export async function desativarProfissionalAction(id: string): Promise<ActionResult> {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Não autorizado." };
+
+  const { data: prof } = await supabase
+    .from("profissionais")
+    .select("id")
+    .eq("id", id)
+    .eq("assistente_id", user.id)
+    .single();
+  if (!prof) return { error: "Não autorizado." };
 
   const { error } = await supabase
     .from("profissionais")

@@ -4,12 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Users, Calendar, DollarSign, Shield, FileText } from "lucide-react";
 
-const tabs = [
+type Tab = { href: string; label: string; icon: typeof Users; hasCount?: boolean; soon?: boolean };
+
+const tabs: Tab[] = [
   { href: "pacientes", label: "Pacientes", icon: Users, hasCount: true },
   { href: "agenda", label: "Agenda", icon: Calendar },
   { href: "financeiro", label: "Financeiro", icon: DollarSign },
   { href: "convenios", label: "Convênios", icon: Shield },
-  { href: "documentos", label: "Documentos", icon: FileText, soon: true },
+  { href: "documentos", label: "Documentos", icon: FileText },
 ];
 
 interface ProfissionalTabsProps {

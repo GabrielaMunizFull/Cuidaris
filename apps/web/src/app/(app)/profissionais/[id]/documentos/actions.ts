@@ -15,7 +15,7 @@ const BUCKET = "documentos";
 const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
 
 const uploadSchema = z.object({
-  titulo: z.string().min(1, "Título obrigatório").max(120),
+  titulo: z.string().min(1, "Preencha o título do documento").max(120),
   tipo: z.enum(["prontuario", "exame", "receita", "atestado", "outro"]),
   paciente_id: z.string().uuid("Selecione um paciente"),
 });

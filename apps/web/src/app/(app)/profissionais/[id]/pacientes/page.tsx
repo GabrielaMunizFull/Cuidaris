@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { PacientesLista, type PacienteEnriquecido } from "./_components/pacientes-lista";
+import { FlashBanner } from "@/components/flash-banner";
 
 export const metadata: Metadata = { title: "Pacientes — Cuidaris" };
 
@@ -20,7 +22,12 @@ export default async function PacientesPage({ params }: { params: Promise<{ id: 
     .order("nome");
 
   if (!pacientes || pacientes.length === 0) {
-    return <PacientesLista pacientes={[]} profissionalId={id} profissionalNome={prof.nome} />;
+    return (
+      <>
+        <Suspense fallback={null}><FlashBanner /></Suspense>
+        <PacientesLista pacientes={[]} profissionalId={id} profissionalNome={prof.nome} />
+      </>
+    );
   }
 
   const pacienteIds = pacientes.map((p) => p.id);
@@ -69,5 +76,10 @@ export default async function PacientesPage({ params }: { params: Promise<{ id: 
     convenio_nome: p.convenio_id ? (convenioMap.get(p.convenio_id) ?? null) : null,
   }));
 
-  return <PacientesLista pacientes={pacientesEnriquecidos} profissionalId={id} profissionalNome={prof.nome} />;
+  return (
+    <>
+      <Suspense fallback={null}><FlashBanner /></Suspense>
+      <PacientesLista pacientes={pacientesEnriquecidos} profissionalId={id} profissionalNome={prof.nome} />
+    </>
+  );
 }

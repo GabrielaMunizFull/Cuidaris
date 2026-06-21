@@ -56,12 +56,14 @@ export default async function RelatoriosPage({
         .from("lancamentos")
         .select("profissional_id, valor, status, forma_pagamento, paciente:pacientes(convenio_id, convenio:convenios(nome)), profissional:profissionais(nome)")
         .gte("data", inicio)
-        .lte("data", fim),
+        .lte("data", fim)
+        .limit(50000),
       supabase
         .from("agenda")
         .select("profissional_id, status")
         .gte("data_hora", `${inicio}T00:00:00`)
-        .lte("data_hora", `${fim}T23:59:59`),
+        .lte("data_hora", `${fim}T23:59:59`)
+        .limit(50000),
       supabase
         .from("profissionais")
         .select("id, nome")
@@ -71,7 +73,8 @@ export default async function RelatoriosPage({
         .from("lancamentos")
         .select("valor, status, data")
         .gte("data", inicioTendencia)
-        .lte("data", fim),
+        .lte("data", fim)
+        .limit(50000),
     ]);
 
   const l = lancamentos ?? [];

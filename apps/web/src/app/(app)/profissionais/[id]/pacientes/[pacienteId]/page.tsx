@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Avatar, Badge } from "@cuidaris/ui";
@@ -8,6 +9,7 @@ import { format, differenceInYears } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { DesativarPacienteForm } from "./_components/desativar-paciente-form";
 import { AnotacoesSection } from "./_components/anotacoes-section";
+import { FlashBanner } from "@/components/flash-banner";
 
 export const metadata: Metadata = {
   title: "Perfil do paciente — Cuidaris",
@@ -73,6 +75,7 @@ export default async function PerfilPacientePage({
 
   return (
     <div className="max-w-2xl space-y-6 mx-auto">
+      <Suspense fallback={null}><FlashBanner /></Suspense>
       {/* Header */}
       <div className="bg-[var(--surface)] border border-[var(--line)] rounded-[var(--radius)] p-6">
         <div className="flex items-start gap-4">

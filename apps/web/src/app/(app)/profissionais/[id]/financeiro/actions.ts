@@ -50,7 +50,7 @@ export async function criarLancamentoAction(
   if (error) return { error: "Erro ao salvar lançamento." };
 
   revalidatePath(`/profissionais/${profissionalId}/financeiro`);
-  redirect(`/profissionais/${profissionalId}/financeiro`);
+  redirect(`/profissionais/${profissionalId}/financeiro?salvo=lancamento`);
 }
 
 export async function editarLancamentoAction(
@@ -99,7 +99,7 @@ export async function editarLancamentoAction(
   if (error) return { error: "Erro ao atualizar lançamento." };
 
   revalidatePath(`/profissionais/${profissionalId}/financeiro`);
-  redirect(`/profissionais/${profissionalId}/financeiro`);
+  redirect(`/profissionais/${profissionalId}/financeiro?salvo=lancamento`);
 }
 
 export async function excluirLancamentoAction(

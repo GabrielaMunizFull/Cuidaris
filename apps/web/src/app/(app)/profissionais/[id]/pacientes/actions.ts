@@ -46,7 +46,7 @@ export async function criarPacienteAction(
 
   revalidatePath(`/profissionais/${profissionalId}/pacientes`);
   revalidateTag(`profissional-${profissionalId}`);
-  redirect(`/profissionais/${profissionalId}/pacientes`);
+  redirect(`/profissionais/${profissionalId}/pacientes?salvo=paciente`);
 }
 
 export async function editarPacienteAction(
@@ -94,7 +94,7 @@ export async function editarPacienteAction(
   if (error) return { error: "Erro ao atualizar paciente." };
 
   revalidatePath(`/profissionais/${profissionalId}/pacientes`);
-  redirect(`/profissionais/${profissionalId}/pacientes/${pacienteId}`);
+  redirect(`/profissionais/${profissionalId}/pacientes/${pacienteId}?salvo=paciente`);
 }
 
 export async function desativarPacienteAction(

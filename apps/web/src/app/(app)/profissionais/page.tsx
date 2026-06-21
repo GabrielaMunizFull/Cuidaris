@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { Avatar, Badge } from "@cuidaris/ui";
 import { Plus } from "lucide-react";
+import { FlashBanner } from "@/components/flash-banner";
 
 export const metadata: Metadata = {
   title: "Profissionais — Cuidaris",
@@ -21,6 +23,7 @@ export default async function ProfissionaisPage() {
 
   return (
     <div className="max-w-3xl mx-auto">
+      <Suspense fallback={null}><FlashBanner /></Suspense>
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-semibold text-[var(--ink)]">Profissionais</h1>

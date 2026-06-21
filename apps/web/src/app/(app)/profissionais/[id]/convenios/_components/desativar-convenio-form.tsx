@@ -10,17 +10,20 @@ export function DesativarConvenioForm({ profissionalId, convenioId }: { profissi
 
   if (confirmando) {
     return (
-      <div className="flex items-center gap-2">
-        <button onClick={() => setConfirmando(false)} className="text-xs text-[var(--ink-3)] hover:text-[var(--ink)] transition-colors">
-          Cancelar
-        </button>
-        <button
-          onClick={() => startTransition(async () => { await desativarConvenioAction(profissionalId, convenioId); })}
-          disabled={isPending}
-          className="text-xs text-red-600 hover:text-red-700 font-medium transition-colors disabled:opacity-50"
-        >
-          {isPending ? "..." : "Confirmar"}
-        </button>
+      <div className="flex flex-col gap-1">
+        <p className="text-xs text-[var(--ink-2)]">Este convênio não aparecerá mais nos novos pacientes.</p>
+        <div className="flex items-center gap-2">
+          <button onClick={() => setConfirmando(false)} className="text-xs text-[var(--ink-3)] hover:text-[var(--ink)] transition-colors">
+            Cancelar
+          </button>
+          <button
+            onClick={() => startTransition(async () => { await desativarConvenioAction(profissionalId, convenioId); })}
+            disabled={isPending}
+            className="text-xs text-red-600 hover:text-red-700 font-medium transition-colors disabled:opacity-50"
+          >
+            {isPending ? "..." : "Desativar"}
+          </button>
+        </div>
       </div>
     );
   }

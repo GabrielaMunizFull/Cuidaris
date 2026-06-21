@@ -57,7 +57,7 @@ export async function criarConsultaAction(
   if (error) return { error: "Erro ao salvar consulta. Tente novamente." };
 
   revalidatePath(`/profissionais/${profissionalId}/agenda`);
-  redirect(`/profissionais/${profissionalId}/agenda`);
+  redirect(`/profissionais/${profissionalId}/agenda?salvo=consulta`);
 }
 
 export async function atualizarStatusConsultaAction(
@@ -66,7 +66,7 @@ export async function atualizarStatusConsultaAction(
   status: StatusConsulta
 ): Promise<ActionResult> {
   const parsed = atualizarStatusSchema.safeParse({ status });
-  if (!parsed.success) return { error: "Status inválido." };
+  if (!parsed.success) return { error: "Não foi possível atualizar o status. Tente novamente." };
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -153,7 +153,7 @@ export async function editarConsultaAction(
   if (error) return { error: "Erro ao atualizar consulta. Tente novamente." };
 
   revalidatePath(`/profissionais/${profissionalId}/agenda`);
-  redirect(`/profissionais/${profissionalId}/agenda`);
+  redirect(`/profissionais/${profissionalId}/agenda?salvo=consulta`);
 }
 
 export async function excluirConsultaAction(

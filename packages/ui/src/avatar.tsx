@@ -1,4 +1,5 @@
 import * as React from "react";
+import Image from "next/image";
 
 interface AvatarProps {
   name: string;
@@ -12,6 +13,8 @@ const sizeClasses = {
   md: "w-9 h-9 text-sm",
   lg: "w-12 h-12 text-base",
 };
+
+const sizePx = { sm: 28, md: 36, lg: 48 };
 
 function getInitials(name: string) {
   return name
@@ -38,9 +41,12 @@ function getColor(name: string) {
 export function Avatar({ name, src, size = "md", className = "" }: AvatarProps) {
   if (src) {
     return (
-      <img
+      <Image
         src={src}
         alt={name}
+        width={sizePx[size]}
+        height={sizePx[size]}
+        quality={75}
         className={[
           "rounded-full object-cover flex-shrink-0",
           sizeClasses[size],

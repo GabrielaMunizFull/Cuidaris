@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Plus } from "lucide-react";
 import { startOfWeek, addDays } from "date-fns";
 import { AgendaSemanal } from "./_components/agenda-semanal";
 import type { Consulta } from "@cuidaris/db";
+import { FlashBanner } from "@/components/flash-banner";
 
 export const metadata: Metadata = {
   title: "Agenda — Cuidaris",
@@ -41,6 +43,7 @@ export default async function AgendaPage({
 
   return (
     <div>
+      <Suspense fallback={null}><FlashBanner /></Suspense>
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-semibold text-[var(--ink)]">Agenda</h1>

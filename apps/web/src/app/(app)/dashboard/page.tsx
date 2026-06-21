@@ -89,7 +89,7 @@ export default async function DashboardPage({
     supabase.from("agenda").select("id, data_hora, status, profissional_id, paciente:pacientes(nome), profissional:profissionais(nome)").gte("data_hora", inicioHoje).lte("data_hora", fimHoje).order("data_hora"),
     supabase.from("agenda").select("id").gte("data_hora", inicioOntem).lte("data_hora", fimOntem),
     supabase.from("profissionais").select("id, nome, especialidade, registro, foto_url").eq("ativo", true).order("nome"),
-    supabase.from("pacientes").select("profissional_id").eq("ativo", true),
+    supabase.from("pacientes").select("profissional_id").eq("ativo", true).limit(10000),
     supabase.from("lancamentos").select("profissional_id, valor, paciente:pacientes(nome), profissional:profissionais(id, nome)").eq("status", "atrasado").order("created_at", { ascending: false }).limit(8),
     supabase.from("agenda").select("id, data_hora, status, paciente:pacientes(nome), profissional:profissionais(nome)").gt("data_hora", fimHoje).lte("data_hora", fimSemana).order("data_hora").limit(5),
     supabase.from("agenda").select("id, data_hora, profissional_id, paciente:pacientes(nome), profissional:profissionais(nome)").gte("data_hora", inicioHoje).lte("data_hora", fimSemana).eq("status", "pendente").order("data_hora").limit(5),

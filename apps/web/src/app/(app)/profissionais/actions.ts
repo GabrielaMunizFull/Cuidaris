@@ -80,7 +80,7 @@ export async function criarProfissionalAction(
   if (error) return { error: "Erro ao salvar profissional. Tente novamente." };
 
   revalidatePath("/profissionais");
-  redirect("/profissionais");
+  redirect("/profissionais?salvo=profissional");
 }
 
 export async function editarProfissionalAction(
@@ -128,7 +128,7 @@ export async function editarProfissionalAction(
 
   revalidatePath("/profissionais");
   revalidatePath(`/profissionais/${id}`);
-  redirect(`/profissionais/${id}/agenda`);
+  redirect(`/profissionais/${id}/agenda?salvo=profissional`);
 }
 
 export async function uploadFotoAction(

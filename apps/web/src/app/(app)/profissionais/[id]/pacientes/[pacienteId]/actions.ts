@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { anotacaoSchema } from "@/lib/validations/anotacao";
 
 interface AnotacaoResult {
   error?: string;
@@ -18,8 +19,8 @@ export async function criarAnotacaoAction(
   pacienteId: string,
   { conteudo }: { conteudo: string }
 ): Promise<AnotacaoResult> {
-  if (!conteudo.trim()) return { error: "A anotação não pode estar vazia." };
-  if (conteudo.length > 5000) return { error: "Anotação muito longa (máx. 5000 caracteres)." };
+  const parsed = anotacaoSchema.safeParse({ conteudo });
+  if (!parsed.success) return { error: parsed.error.errors[0]?.message ?? "Dados inválidos." };
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -31,7 +32,7 @@ export async function criarAnotacaoAction(
       profissional_id: profissionalId,
       assistente_id: user.id,
       paciente_id: pacienteId,
-      conteudo: conteudo.trim(),
+      conteudo: parsed.data.conteudo.trim(),
     })
     .select("id, conteudo, created_at, updated_at")
     .single();

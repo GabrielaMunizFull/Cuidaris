@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Plus } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { LancamentosLista } from "./_components/lancamentos-lista";
+import { FlashBanner } from "@/components/flash-banner";
 
 export const metadata: Metadata = {
   title: "Financeiro — Cuidaris",
@@ -55,6 +57,7 @@ export default async function FinanceiroPage({
 
   return (
     <div className="max-w-3xl mx-auto">
+      <Suspense fallback={null}><FlashBanner /></Suspense>
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-semibold text-[var(--ink)] capitalize">

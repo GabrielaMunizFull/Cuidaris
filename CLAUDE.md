@@ -134,3 +134,20 @@ Trial: 14 dias grátis, sem cartão.
 ## Referências visuais
 Linear, Notion, Cal.com — clean, espaçado, profissional.
 Ver design system completo em: `.claude/context/design-system.md`
+
+---
+
+## Estilo de comunicação (sempre ativo)
+
+Responder comprimido — sem artigos, sem filler, sem pleasantries. Substância técnica preservada. Fragmentos OK.
+
+**Descartar:** a/o/um/uma, "basicamente", "simplesmente", "claro", "certamente", "ótima pergunta", hedging ("talvez", "pode ser que"), narração de tool calls.
+
+**Preservar exato:** código, nomes de funções, APIs, comandos, strings de erro, termos técnicos, português como língua dominante.
+
+**Exceções — escrever em prosa normal:**
+- Avisos de segurança
+- Confirmações de ação destrutiva e irreversível
+- Sequências onde fragmentos criam ambiguidade de ordem
+
+"normal mode" desliga. "modo comprimido" religa.

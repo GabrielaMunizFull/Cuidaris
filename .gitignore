@@ -12,6 +12,9 @@ dist
 .env.local
 .env.*.local
 
+# MCP config (contém refs a variáveis de ambiente com chaves)
+.mcp.json
+
 # OS
 .DS_Store
 Thumbs.db

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { stripe, supabaseAdmin } from "@/lib/stripe";
+import { getStripe, supabaseAdmin } from "@/lib/stripe";
 import { sendPagamentoConfirmado, sendTrialExpirando, sendCancelamento } from "@cuidaris/emails";
 import type Stripe from "stripe";
 
@@ -47,7 +47,7 @@ export async function POST(request: Request) {
 
   let event: Stripe.Event;
   try {
-    event = stripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET!);
+    event = getStripe().webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET!);
   } catch {
     return NextResponse.json({ error: "Assinatura inválida." }, { status: 400 });
   }
@@ -59,7 +59,7 @@ export async function POST(request: Request) {
       const assistenteId = session.metadata?.assistente_id;
       if (!assistenteId || !session.subscription) break;
 
-      const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
+      const subscription = await getStripe().subscriptions.retrieve(session.subscription as string);
       const plano = planoFromSubscription(subscription);
 
       const { data: assistente } = await supabaseAdmin
@@ -120,7 +120,7 @@ export async function POST(request: Request) {
       if (!subscriptionId) break;
 
       // Recupera o plano atual da subscription para garantir consistência
-      const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+      const subscription = await getStripe().subscriptions.retrieve(subscriptionId);
       const plano = planoFromSubscription(subscription);
       const update: Record<string, unknown> = { status_assinatura: "ativo" };
       if (plano) update.plano = plano;

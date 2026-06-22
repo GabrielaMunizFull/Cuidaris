@@ -1,8 +1,16 @@
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2026-05-27.dahlia",
+let _stripe: Stripe | null = null;
+export const stripe = new Proxy({} as Stripe, {
+  get(_, prop) {
+    if (!_stripe) {
+      _stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+        apiVersion: "2026-05-27.dahlia",
+      });
+    }
+    return (_stripe as never)[prop];
+  },
 });
 
 // Cliente admin (service role) — bypass RLS, usado apenas em webhooks server-side

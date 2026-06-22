@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { supabaseAdmin } from "@/lib/stripe";
+import { getSupabaseAdmin } from "@/lib/stripe";
 import { z } from "zod";
 
 export type ActionResult = {
@@ -52,13 +52,13 @@ export async function uploadDocumentoAction(
   const storagePath = `${user.id}/${profissionalId}/${crypto.randomUUID()}.${ext}`;
   const buffer = Buffer.from(await arquivo.arrayBuffer());
 
-  const { error: storageError } = await supabaseAdmin.storage
+  const { error: storageError } = await getSupabaseAdmin().storage
     .from(BUCKET)
     .upload(storagePath, buffer, { contentType: arquivo.type, upsert: false });
 
   if (storageError) return { error: "Erro ao enviar o arquivo. Tente novamente." };
 
-  const { error: dbError } = await supabaseAdmin.from("documentos_pacientes").insert({
+  const { error: dbError } = await getSupabaseAdmin().from("documentos_pacientes").insert({
     profissional_id: profissionalId,
     assistente_id: user.id,
     paciente_id: parsed.data.paciente_id,
@@ -71,7 +71,7 @@ export async function uploadDocumentoAction(
   });
 
   if (dbError) {
-    await supabaseAdmin.storage.from(BUCKET).remove([storagePath]);
+    await getSupabaseAdmin().storage.from(BUCKET).remove([storagePath]);
     return { error: "Erro ao salvar documento. Tente novamente." };
   }
 
@@ -96,7 +96,7 @@ export async function deletarDocumentoAction(
 
   if (!doc) return { error: "Documento não encontrado." };
 
-  await supabaseAdmin.storage.from(BUCKET).remove([doc.storage_path]);
+  await getSupabaseAdmin().storage.from(BUCKET).remove([doc.storage_path]);
 
   const { error } = await supabase
     .from("documentos_pacientes")

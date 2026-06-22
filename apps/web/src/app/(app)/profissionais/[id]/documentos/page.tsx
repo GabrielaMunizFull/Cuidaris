@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { supabaseAdmin } from "@/lib/stripe";
+import { getSupabaseAdmin } from "@/lib/stripe";
 import { Plus, FileText, Image, FileQuestion } from "lucide-react";
 import { DeletarDocumentoForm } from "./_components/deletar-documento-form";
 
@@ -66,7 +66,7 @@ export default async function DocumentosPage({
   // Gera URLs assinadas (1h) para download
   const docsComUrl = await Promise.all(
     (docs ?? []).map(async (doc) => {
-      const { data } = await supabaseAdmin.storage
+      const { data } = await getSupabaseAdmin().storage
         .from("documentos")
         .createSignedUrl(doc.storage_path, 3600);
       return { ...doc, url: data?.signedUrl ?? null };

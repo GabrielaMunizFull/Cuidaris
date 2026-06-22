@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { supabaseAdmin } from "@/lib/stripe";
+import { getSupabaseAdmin } from "@/lib/stripe";
 import { profissionalSchema } from "@/lib/validations/profissional";
 import { LIMITE_PROFISSIONAIS } from "@cuidaris/db";
 import type { PlanoAssinatura } from "@cuidaris/db";
@@ -157,13 +157,13 @@ export async function uploadFotoAction(
   const storagePath = `profissionais/${profissionalId}/foto.${ext}`;
   const buffer = Buffer.from(await foto.arrayBuffer());
 
-  const { error: uploadError } = await supabaseAdmin.storage
+  const { error: uploadError } = await getSupabaseAdmin().storage
     .from(BUCKET_FOTOS)
     .upload(storagePath, buffer, { contentType: foto.type, upsert: true });
 
   if (uploadError) return { error: "Erro ao enviar a imagem. Tente novamente." };
 
-  const { data: { publicUrl } } = supabaseAdmin.storage
+  const { data: { publicUrl } } = getSupabaseAdmin().storage
     .from(BUCKET_FOTOS)
     .getPublicUrl(storagePath);
 

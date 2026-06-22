@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getStripe, supabaseAdmin } from "@/lib/stripe";
+import { getStripe, getSupabaseAdmin } from "@/lib/stripe";
 import { sendPagamentoConfirmado, sendTrialExpirando, sendCancelamento } from "@cuidaris/emails";
 import type Stripe from "stripe";
 
@@ -62,7 +62,7 @@ export async function POST(request: Request) {
       const subscription = await getStripe().subscriptions.retrieve(session.subscription as string);
       const plano = planoFromSubscription(subscription);
 
-      const { data: assistente } = await supabaseAdmin
+      const { data: assistente } = await getSupabaseAdmin()
         .from("assistentes")
         .update({
           stripe_subscription_id: subscription.id,
@@ -89,7 +89,7 @@ export async function POST(request: Request) {
       const update: Record<string, unknown> = { status_assinatura: novoStatus };
       if (plano) update.plano = plano; // só atualiza plano se reconhecido
 
-      await supabaseAdmin
+      await getSupabaseAdmin()
         .from("assistentes")
         .update(update)
         .eq("stripe_subscription_id", subscription.id);
@@ -100,7 +100,7 @@ export async function POST(request: Request) {
     case "customer.subscription.deleted": {
       const subscription = event.data.object as Stripe.Subscription;
 
-      const { data: assistente } = await supabaseAdmin
+      const { data: assistente } = await getSupabaseAdmin()
         .from("assistentes")
         .update({ status_assinatura: "cancelado" })
         .eq("stripe_subscription_id", subscription.id)
@@ -125,7 +125,7 @@ export async function POST(request: Request) {
       const update: Record<string, unknown> = { status_assinatura: "ativo" };
       if (plano) update.plano = plano;
 
-      await supabaseAdmin
+      await getSupabaseAdmin()
         .from("assistentes")
         .update(update)
         .eq("stripe_subscription_id", subscriptionId);
@@ -138,7 +138,7 @@ export async function POST(request: Request) {
       const subscriptionId = subscriptionIdFromInvoice(invoice);
       if (!subscriptionId) break;
 
-      await supabaseAdmin
+      await getSupabaseAdmin()
         .from("assistentes")
         .update({ status_assinatura: "inadimplente" })
         .eq("stripe_subscription_id", subscriptionId);
@@ -151,7 +151,7 @@ export async function POST(request: Request) {
       const assistenteId = subscription.metadata?.assistente_id;
       if (!assistenteId) break;
 
-      const { data: assistente } = await supabaseAdmin
+      const { data: assistente } = await getSupabaseAdmin()
         .from("assistentes")
         .select("email, nome, trial_termina_em")
         .eq("id", assistenteId)

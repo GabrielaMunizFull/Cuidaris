@@ -11,11 +11,17 @@ export function getStripe(): Stripe {
   return _stripe;
 }
 
-// Cliente admin (service role) — bypass RLS, usado apenas em webhooks server-side
-export const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+type SupabaseAdmin = ReturnType<typeof createClient>;
+let _supabaseAdmin: SupabaseAdmin | null = null;
+export function getSupabaseAdmin(): SupabaseAdmin {
+  if (!_supabaseAdmin) {
+    _supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+  }
+  return _supabaseAdmin;
+}
 
 export const PLANOS = {
   solo: {

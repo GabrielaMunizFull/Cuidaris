@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getSupabaseAdmin } from "@/lib/stripe";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { profissionalSchema } from "@/lib/validations/profissional";
 import { LIMITE_PROFISSIONAIS } from "@cuidaris/db";
 import type { PlanoAssinatura } from "@cuidaris/db";

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getSupabaseAdmin } from "@/lib/stripe";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { Plus, FileText, Image, FileQuestion } from "lucide-react";
 import { DeletarDocumentoForm } from "./_components/deletar-documento-form";
 

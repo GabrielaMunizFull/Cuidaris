@@ -33,7 +33,9 @@ export async function POST(request: Request) {
       .eq("id", user.id);
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const host = request.headers.get("host") ?? "localhost:3000";
+  const proto = request.headers.get("x-forwarded-proto") ?? "http";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? `${proto}://${host}`;
 
   const session = await getStripe().checkout.sessions.create({
     customer: customerId,

@@ -7,6 +7,29 @@ import { Sidebar } from "./_components/sidebar";
 import { Header } from "./_components/header";
 import { TrialBanner } from "./_components/trial-banner";
 
+// Cache declarado fora do componente — callback cria seu próprio client por userId
+// evitando capturar o client de um request específico no closure
+const getLayoutData = unstable_cache(
+  async (userId: string) => {
+    const supabase = await createClient();
+    const [{ data: assistente }, { data: profissionais }] = await Promise.all([
+      supabase
+        .from("assistentes")
+        .select("nome, status_assinatura, trial_termina_em, plano, tipo_conta")
+        .eq("id", userId)
+        .single(),
+      supabase
+        .from("profissionais")
+        .select("id, nome, especialidade, foto_url")
+        .eq("ativo", true)
+        .order("nome"),
+    ]);
+    return { assistente, profissionais };
+  },
+  ["layout-data"],
+  { revalidate: 60 }
+);
+
 export default async function AppLayout({
   children,
 }: {
@@ -18,26 +41,6 @@ export default async function AppLayout({
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const getLayoutData = unstable_cache(
-    async (userId: string) => {
-      const [{ data: assistente }, { data: profissionais }] = await Promise.all([
-        supabase
-          .from("assistentes")
-          .select("nome, status_assinatura, trial_termina_em, plano, tipo_conta")
-          .eq("id", userId)
-          .single(),
-        supabase
-          .from("profissionais")
-          .select("id, nome, especialidade, foto_url")
-          .eq("ativo", true)
-          .order("nome"),
-      ]);
-      return { assistente, profissionais };
-    },
-    ["layout-data"],
-    { revalidate: 60, tags: [`user-${user.id}`] }
-  );
-
   const { assistente, profissionais } = await getLayoutData(user.id);
 
   const status = assistente?.status_assinatura ?? "trial";
@@ -45,7 +48,7 @@ export default async function AppLayout({
     ? new Date(assistente.trial_termina_em)
     : null;
   const diasRestantes = trialTermina ? differenceInDays(trialTermina, new Date()) : 0;
-  const trialExpirado = status === "trial" && diasRestantes < 0;
+  const trialExpirado = status === "trial" && !!trialTermina && trialTermina < new Date();
   const mostrarBanner = status === "trial" && diasRestantes <= 7;
 
   const SEMPRE_ACESSIVEIS_LAYOUT = ["/planos", "/configuracoes"];

@@ -42,10 +42,14 @@ export default async function AcessoSuspensPage({
   const texto = TEXTOS[chave];
 
   const supabase = await createClient();
-  const { data: assistente } = await supabase
-    .from("assistentes")
-    .select("stripe_customer_id")
-    .single();
+  const { data: { user } } = await supabase.auth.getUser();
+  const { data: assistente } = user
+    ? await supabase
+        .from("assistentes")
+        .select("stripe_customer_id")
+        .eq("id", user.id)
+        .single()
+    : { data: null };
 
   const temPortal = !!assistente?.stripe_customer_id;
 

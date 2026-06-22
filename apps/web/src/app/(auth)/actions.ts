@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { loginSchema, signupComTipoSchema } from "@/lib/validations/auth";
 import { sendBoasVindas } from "@cuidaris/emails";
@@ -10,6 +11,16 @@ export type ActionResult = {
   fieldErrors?: Record<string, string[]>;
   emailDuplicado?: boolean;
 };
+
+async function getAppUrl(path: string): Promise<string> {
+  if (process.env.NEXT_PUBLIC_APP_URL) {
+    return `${process.env.NEXT_PUBLIC_APP_URL}${path}`;
+  }
+  const h = await headers();
+  const host = h.get("host") ?? "localhost:3000";
+  const proto = h.get("x-forwarded-proto") ?? "http";
+  return `${proto}://${host}${path}`;
+}
 
 export async function loginAction(
   _prevState: ActionResult,
@@ -118,7 +129,7 @@ export async function esqueceuSenhaAction(
 
   const supabase = await createClient();
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/redefinir-senha`,
+    redirectTo: await getAppUrl("/redefinir-senha"),
   });
 
   if (error) return { error: "Não conseguimos enviar o e-mail agora. Verifique o endereço e tente novamente." };

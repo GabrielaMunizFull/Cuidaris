@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { getStripe, getSupabaseAdmin } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { sendPagamentoConfirmado, sendTrialExpirando, sendCancelamento } from "@cuidaris/emails";
 import type Stripe from "stripe";
 

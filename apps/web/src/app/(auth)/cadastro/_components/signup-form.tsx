@@ -52,6 +52,7 @@ export function SignupForm() {
   const [tipoConta, setTipoConta] = useState<TipoConta>("assistente");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [aceitouTermos, setAceitouTermos] = useState(false);
 
   if (step === 1) {
     return (
@@ -242,9 +243,28 @@ export function SignupForm() {
         )}
       </div>
 
+      <label className="flex items-start gap-3 cursor-pointer">
+        <input
+          type="checkbox"
+          checked={aceitouTermos}
+          onChange={(e) => setAceitouTermos(e.target.checked)}
+          className="mt-0.5 h-4 w-4 shrink-0 rounded border-[var(--line)] accent-[var(--accent)]"
+        />
+        <span className="text-xs text-[var(--ink-2)] leading-relaxed">
+          Li e aceito os{" "}
+          <Link href="/termos" target="_blank" className="text-[var(--accent)] hover:underline font-medium">
+            Termos de Uso
+          </Link>{" "}
+          e a{" "}
+          <Link href="/privacidade" target="_blank" className="text-[var(--accent)] hover:underline font-medium">
+            Política de Privacidade
+          </Link>
+        </span>
+      </label>
+
       <button
         type="submit"
-        disabled={isPending}
+        disabled={isPending || !aceitouTermos}
         className="mt-1 h-11 w-full rounded-[var(--radius)] bg-[var(--accent)] text-white text-sm font-semibold hover:bg-[var(--accent-hover)] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm"
       >
         {isPending ? (

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { stripe, supabaseAdmin } from "@/lib/stripe";
-import { sendPagamentoConfirmado, sendTrialExpirando } from "@cuidaris/emails";
+import { sendPagamentoConfirmado, sendTrialExpirando, sendCancelamento } from "@cuidaris/emails";
 import type Stripe from "stripe";
 
 export const runtime = "nodejs";
@@ -107,10 +107,8 @@ export async function POST(request: Request) {
         .select("email, nome")
         .single();
 
-      // Email de cancelamento (silencioso — não bloqueia resposta ao Stripe)
       if (assistente) {
-        // Re-usa o template de trial expirado que já indica conta suspensa
-        // TODO: criar template específico de cancelamento se necessário
+        sendCancelamento(assistente.email, assistente.nome).catch(console.error);
       }
       break;
     }

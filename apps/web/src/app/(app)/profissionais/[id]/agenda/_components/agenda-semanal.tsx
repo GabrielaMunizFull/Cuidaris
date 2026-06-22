@@ -98,8 +98,9 @@ export function AgendaSemanal({ consultas, profissionalId }: AgendaSemanalProps)
               {/* Consultas */}
               <div className="flex flex-col gap-1.5 min-h-[120px]">
                 {consultasDia.length === 0 ? (
-                  <div className="rounded-[10px] border border-dashed border-[var(--line)] h-20 flex items-center justify-center">
-                    <span className="text-xs text-[var(--ink-3)]">—</span>
+                  <div className="rounded-[10px] border border-dashed border-[var(--line)] h-20 flex flex-col items-center justify-center gap-0.5">
+                    <span className="text-xs font-medium text-[var(--ink-3)]">Dia livre</span>
+                    <span className="text-[10px] text-[var(--ink-3)]">Nenhuma sessão agendada</span>
                   </div>
                 ) : (
                   consultasDia.map((consulta) => (

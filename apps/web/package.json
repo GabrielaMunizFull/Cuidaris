@@ -17,6 +17,7 @@
     "@cuidaris/emails": "workspace:*",
     "@cuidaris/pdf": "workspace:*",
     "@cuidaris/ui": "workspace:*",
+    "@sentry/nextjs": "^10.59.0",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.47.2",
     "date-fns": "^4.1.0",

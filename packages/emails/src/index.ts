@@ -6,6 +6,7 @@ import { TrialExpirando } from "./templates/trial-expirando";
 import { TrialExpirado } from "./templates/trial-expirado";
 import { PagamentoConfirmado } from "./templates/pagamento-confirmado";
 import { LembreteConsulta } from "./templates/lembrete-consulta";
+import { Cancelamento } from "./templates/cancelamento";
 
 function getResend() {
   return new Resend(process.env.RESEND_API_KEY);
@@ -59,4 +60,9 @@ export async function sendPagamentoConfirmado(to: string, nome: string, plano: s
     createElement(PagamentoConfirmado, { nome, plano, appUrl: APP_URL() })
   );
   await sendEmail(to, "Pagamento confirmado — Cuidaris", html);
+}
+
+export async function sendCancelamento(to: string, nome: string) {
+  const html = await render(createElement(Cancelamento, { nome, appUrl: APP_URL() }));
+  await sendEmail(to, "Assinatura do Cuidaris cancelada", html);
 }

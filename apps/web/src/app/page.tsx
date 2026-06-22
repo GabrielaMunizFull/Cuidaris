@@ -137,8 +137,17 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="border-t border-[var(--line)] py-8 px-6 text-center">
-        <div className="flex items-center justify-center gap-2 mb-2">
+        <div className="flex items-center justify-center gap-2 mb-4">
           <CuidarisLogo size="sm" />
+        </div>
+        <div className="flex items-center justify-center gap-4 mb-3 flex-wrap">
+          <Link href="/privacidade" className="text-xs text-[var(--ink-3)] hover:text-[var(--ink-2)] transition-colors">
+            Política de Privacidade
+          </Link>
+          <span className="text-[var(--line)] text-xs">·</span>
+          <Link href="/termos" className="text-xs text-[var(--ink-3)] hover:text-[var(--ink-2)] transition-colors">
+            Termos de Uso
+          </Link>
         </div>
         <p className="text-xs text-[var(--ink-3)]">© 2026 Cuidaris · Feito para quem cuida.</p>
       </footer>

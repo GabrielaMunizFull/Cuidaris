@@ -24,6 +24,8 @@ export default withSentryConfig(nextConfig, {
   project: process.env.SENTRY_PROJECT ?? "cuidaris-web",
   silent: !process.env.CI,
   widenClientFileUpload: true,
-  hideSourceMaps: true,
+  sourcemaps: {
+    deleteSourcemapsAfterUpload: true,
+  },
   disableLogger: true,
 });

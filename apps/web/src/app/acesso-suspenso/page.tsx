@@ -9,6 +9,13 @@ export const metadata: Metadata = {
 };
 
 const TEXTOS = {
+  trial_expirado: {
+    titulo: "Período gratuito encerrado",
+    descricao:
+      "Seu trial de 14 dias chegou ao fim. Escolha um plano para continuar acessando o Cuidaris — todos os seus dados estão preservados.",
+    badge: "bg-amber-50 border-amber-200 text-amber-700",
+    badgeLabel: "Trial encerrado",
+  },
   inadimplente: {
     titulo: "Pagamento pendente",
     descricao:
@@ -31,7 +38,7 @@ export default async function AcessoSuspensPage({
   searchParams: Promise<{ motivo?: string }>;
 }) {
   const { motivo } = await searchParams;
-  const chave = motivo === "inadimplente" || motivo === "cancelado" ? motivo : "cancelado";
+  const chave = motivo === "inadimplente" || motivo === "cancelado" || motivo === "trial_expirado" ? motivo : "trial_expirado";
   const texto = TEXTOS[chave];
 
   const supabase = await createClient();

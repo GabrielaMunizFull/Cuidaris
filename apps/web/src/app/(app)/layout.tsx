@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { unstable_cache } from "next/cache";
 import { differenceInDays } from "date-fns";
+import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { Sidebar } from "./_components/sidebar";
 import { Header } from "./_components/header";
@@ -12,6 +13,7 @@ export default async function AppLayout({
   children: React.ReactNode;
 }) {
   const supabase = await createClient();
+  const pathname = (await headers()).get("x-pathname") ?? "";
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
@@ -46,10 +48,14 @@ export default async function AppLayout({
   const trialExpirado = status === "trial" && diasRestantes < 0;
   const mostrarBanner = status === "trial" && diasRestantes <= 7;
 
+  const SEMPRE_ACESSIVEIS_LAYOUT = ["/planos", "/configuracoes"];
+  const rotaSempreAcessivel = SEMPRE_ACESSIVEIS_LAYOUT.some((p) => pathname.startsWith(p));
+
   // Bloqueia acesso se trial expirado ou cancelado/inadimplente sem plano ativo
-  // /planos sempre acessível para poder assinar
+  // /planos e /configuracoes sempre acessíveis para poder assinar
   const bloqueado =
-    trialExpirado || status === "cancelado" || status === "inadimplente";
+    !rotaSempreAcessivel &&
+    (trialExpirado || status === "cancelado" || status === "inadimplente");
 
   return (
     <div className="min-h-screen bg-[var(--bg)]">

@@ -40,7 +40,14 @@ function isApiIgnorada(pathname: string) {
 }
 
 export async function updateSession(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({ request });
+  const { pathname } = request.nextUrl;
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-pathname", pathname);
+
+  const makeResponse = () =>
+    NextResponse.next({ request: { headers: requestHeaders } });
+
+  let supabaseResponse = makeResponse();
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -52,7 +59,7 @@ export async function updateSession(request: NextRequest) {
         },
         setAll(cookiesToSet: { name: string; value: string; options?: unknown }[]) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-          supabaseResponse = NextResponse.next({ request });
+          supabaseResponse = makeResponse();
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options as Parameters<(typeof supabaseResponse.cookies)["set"]>[2])
           );
@@ -62,7 +69,6 @@ export async function updateSession(request: NextRequest) {
   );
 
   const { data: { user } } = await supabase.auth.getUser();
-  const { pathname } = request.nextUrl;
 
   // Deixa APIs passarem sem verificação adicional
   if (isApiIgnorada(pathname)) return supabaseResponse;
@@ -85,17 +91,22 @@ export async function updateSession(request: NextRequest) {
   if (user && isAppRoute(pathname) && !isSempreAcessivel(pathname)) {
     const { data: assistente } = await supabase
       .from("assistentes")
-      .select("status_assinatura")
+      .select("status_assinatura, trial_termina_em")
       .eq("id", user.id)
       .single();
 
     const status = assistente?.status_assinatura;
-    const bloqueado = status === "inadimplente" || status === "cancelado";
+    const trialExpirado =
+      status === "trial" &&
+      !!assistente?.trial_termina_em &&
+      new Date(assistente.trial_termina_em) < new Date();
+
+    const bloqueado = status === "inadimplente" || status === "cancelado" || trialExpirado;
 
     if (bloqueado) {
       const url = request.nextUrl.clone();
       url.pathname = "/acesso-suspenso";
-      url.searchParams.set("motivo", status);
+      url.searchParams.set("motivo", trialExpirado ? "trial_expirado" : status!);
       return NextResponse.redirect(url);
     }
   }

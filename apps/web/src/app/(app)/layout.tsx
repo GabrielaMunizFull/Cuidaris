@@ -1,34 +1,10 @@
 import { redirect } from "next/navigation";
-import { unstable_cache } from "next/cache";
 import { differenceInDays } from "date-fns";
 import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { Sidebar } from "./_components/sidebar";
 import { Header } from "./_components/header";
 import { TrialBanner } from "./_components/trial-banner";
-
-// Cache declarado fora do componente — callback cria seu próprio client por userId
-// evitando capturar o client de um request específico no closure
-const getLayoutData = unstable_cache(
-  async (userId: string) => {
-    const supabase = await createClient();
-    const [{ data: assistente }, { data: profissionais }] = await Promise.all([
-      supabase
-        .from("assistentes")
-        .select("nome, status_assinatura, trial_termina_em, plano, tipo_conta")
-        .eq("id", userId)
-        .single(),
-      supabase
-        .from("profissionais")
-        .select("id, nome, especialidade, foto_url")
-        .eq("ativo", true)
-        .order("nome"),
-    ]);
-    return { assistente, profissionais };
-  },
-  ["layout-data"],
-  { revalidate: 60 }
-);
 
 export default async function AppLayout({
   children,
@@ -41,7 +17,18 @@ export default async function AppLayout({
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { assistente, profissionais } = await getLayoutData(user.id);
+  const [{ data: assistente }, { data: profissionais }] = await Promise.all([
+    supabase
+      .from("assistentes")
+      .select("nome, status_assinatura, trial_termina_em, plano, tipo_conta")
+      .eq("id", user.id)
+      .single(),
+    supabase
+      .from("profissionais")
+      .select("id, nome, especialidade, foto_url")
+      .eq("ativo", true)
+      .order("nome"),
+  ]);
 
   const status = assistente?.status_assinatura ?? "trial";
   const trialTermina = assistente?.trial_termina_em
